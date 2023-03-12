@@ -1,24 +1,39 @@
 # Настройки уведомлений приходящих администраторам
 
 # Строка для получения информации о игроке
-player-info: "<blue><u>Нажмите, чтобы посмотреть информацию о игроке '%player_name%'"
+notif-player-info: "<blue><u>Информация о игроке '%player_name%'"
 
-new-nick: "<red>Игрок '%player_name%' вошёл на сервер с новым никнеймом"
+notif-register: "<green>Зарегистрирован новый игрок
+             <br>Никнейм: %player_name%
+             <br>IP: %player_ip%"
+
+notif-join: "<blue>Игрок '%player_name%' вошёл на сервер с IP '%player_ip%'"
+
+# Вход с новым никнеймом
+notif-new-nick: "<red>Игрок '%player_name%' вошёл на сервер с новым никнеймом"
 
 # Вход с нового IP
-new-ip: "<red>Игрок '%player_name%' вошёл на сервер с нового IP адреса: '%player_ip%'"
+notif-new-ip: "<red>Игрок '%player_name%' вошёл на сервер с нового IP адреса: '%player_ip%'"
 
 # Вход с дублирующегося IP
-dupe-ip: "<red>Игрок '%player_name%' вошёл на сервер с дублирующегося IP адреса: '%player_ip%' 
-          <br>Этот IP уже был замечен у игрока %player_dupe%"
+notif-dupe-ip: "<red>Игрок '%player_name%' вошёл на сервер с дублирующегося IP адреса: '%player_ip%' 
+               <br>Этот IP уже был замечен у игрока %player_dupe%"
 
 # Настройки логирования
 
+# Логирование ошибок
 log-err: true
+# Логирование предупреждений
 log-warn: true
+# Логирование информации
 log-info: true
+# Логирование входа нового игрока
 log-register: true
+# Логирование входа игрока
 log-join: true
+# Логирование смены ника игрока
 log-new-nick: true
+# Логирование смены IP игрока
 log-new-ip: true
+# Логирование повторяющегося IP игрока
 log-dupe-ip: true

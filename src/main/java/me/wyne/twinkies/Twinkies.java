@@ -3,7 +3,6 @@ package me.wyne.twinkies;
 import me.wyne.twinkies.listeners.JoinListener;
 import me.wyne.twinkies.logging.LoggingConfig;
 import me.wyne.twinkies.logging.WLog;
-import me.wyne.twinkies.notifications.Notifications;
 import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.notifications.NotificationsSettings;
 import me.wyne.twinkies.storage.PlayerStorage;
@@ -30,13 +29,10 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
 
     // Configs
     private final NotificationsConfig notificationsConfig = new NotificationsConfig();
-    private final LoggingConfig logginConfig = new LoggingConfig();
+    private final LoggingConfig loggingConfig = new LoggingConfig();
 
     // Settings
     private final HashMap<UUID, NotificationsSettings> notificationsSettings = new HashMap();
-
-    // Notifications
-    private final Notifications notifications = new Notifications(this);
 
     // Listeners
     private final JoinListener joinListener = new JoinListener(this);
@@ -45,7 +41,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
     public void onEnable() {
         this.saveDefaultConfig();
         WConfig.registerClass(notificationsConfig);
-        WConfig.registerClass(logginConfig);
+        WConfig.registerClass(loggingConfig);
         try {
             WLog.info(this, "Перезагрузка конфига...");
             WConfig.reloadFields(getConfig());
@@ -78,7 +74,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
     }
     @NotNull
     public LoggingConfig getLogConfig() {
-        return logginConfig;
+        return loggingConfig;
     }
 
     @NotNull
@@ -92,11 +88,6 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
     public void setNotificationsSettings(@NotNull final Player player, @NotNull final NotificationsSettings settings)
     {
         notificationsSettings.put(player.getUniqueId(), settings);
-    }
-
-    @NotNull
-    public Notifications getNotifications() {
-        return notifications;
     }
 
     @Override

@@ -2,6 +2,7 @@ package me.wyne.twinkies.notifications;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.wyne.twinkies.Twinkies;
+import me.wyne.twinkies.logging.WLog;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
@@ -10,14 +11,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class Notifications {
 
-    private final Twinkies plugin;
-
-    public Notifications(@NotNull final Twinkies plugin)
+    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final String message)
     {
-        this.plugin = plugin;
+        for (Player player : Bukkit.getOnlinePlayers())
+        {
+            if (!player.hasPermission("twinkies.notifications"))
+                continue;
+
+            player.sendMessage(plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, message)));
+        }
     }
 
-    public void sendNotification(@NotNull final Component message)
+    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Component message)
     {
         for (Player player : Bukkit.getOnlinePlayers())
         {
@@ -28,7 +33,21 @@ public class Notifications {
         }
     }
 
-    public void sendNotification(@NotNull final Component @NotNull ... messages)
+    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final String @NotNull ... messages)
+    {
+        for (Player player : Bukkit.getOnlinePlayers())
+        {
+            if (!player.hasPermission("twinkies.notifications"))
+                return;
+
+            for (String message : messages)
+            {
+                player.sendMessage(plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, message)));
+            }
+        }
+    }
+
+    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Component @NotNull ... messages)
     {
         for (Player player : Bukkit.getOnlinePlayers())
         {
@@ -42,14 +61,43 @@ public class Notifications {
         }
     }
 
-    public void sendNotification(@NotNull final Player player, @NotNull final String stringMessage)
+
+    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final String stringMessage)
     {
+        Component playerInfo = Component.text("Информация о игроке '")
+                .append(Component.text(player.getName()))
+                .append(Component.text("'"))
+                .appendNewline()
+                .append(Component.text("Никнеймы:"))
+                .appendNewline();
+
+        if (plugin.getPlayerStorage().getPlayerNicknames(player) != null)
+        {
+            for (String nickname : plugin.getPlayerStorage().getPlayerNicknames(player))
+            {
+                playerInfo = playerInfo.append(Component.text(nickname)).appendNewline();
+            }
+        }
+
+        playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).appendNewline();
+
+        if (plugin.getPlayerStorage().getPlayerIps(player) != null)
+        {
+            int i = 0;
+            for (String ip : plugin.getPlayerStorage().getPlayerIps(player))
+            {
+                if (i != plugin.getPlayerStorage().getPlayerIps(player).size() - 1)
+                    playerInfo = playerInfo.append(Component.text(ip)).appendNewline();
+                else
+                    playerInfo = playerInfo.append(Component.text(ip));
+                i++;
+            }
+        }
+
         Component message = plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, stringMessage))
                 .appendNewline()
                 .append(plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, plugin.getNotificationsConfig().getPlayerInfo()))
-                        .hoverEvent(HoverEvent.showText(Component.text("Информация о игроке '")
-                                .append(Component.text(player.getName()))
-                                .append(Component.text("'")))));
-        sendNotification(message);
+                        .hoverEvent(HoverEvent.showText(playerInfo)));
+        sendNotification(plugin, message);
     }
 }
