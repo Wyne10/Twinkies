@@ -1,2 +1,24 @@
-testField: "End value"
-testInt: 5
+# Настройки уведомлений приходящих администраторам
+
+# Строка для получения информации о игроке
+player-info: "<blue><u>Нажмите, чтобы посмотреть информацию о игроке '%player_name%'"
+
+new-nick: "<red>Игрок '%player_name%' вошёл на сервер с новым никнеймом"
+
+# Вход с нового IP
+new-ip: "<red>Игрок '%player_name%' вошёл на сервер с нового IP адреса: '%player_ip%'"
+
+# Вход с дублирующегося IP
+dupe-ip: "<red>Игрок '%player_name%' вошёл на сервер с дублирующегося IP адреса: '%player_ip%' 
+          <br>Этот IP уже был замечен у игрока %player_dupe%"
+
+# Настройки логирования
+
+log-err: true
+log-warn: true
+log-info: true
+log-register: true
+log-join: true
+log-new-nick: true
+log-new-ip: true
+log-dupe-ip: true

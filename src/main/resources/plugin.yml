@@ -6,3 +6,8 @@ author: Wyne
 website: https://github.com/Wyne10
 commands:
   twinkies:
+permissions:
+  twinkies.*:
+    default: op
+  twinkies.notifications:
+    description: Allows player to receive notifications
