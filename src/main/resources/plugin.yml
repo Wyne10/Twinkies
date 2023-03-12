@@ -1,0 +1,8 @@
+name: Twinkies
+version: '${project.version}'
+main: me.wyne.twinkies.Twinkies
+api-version: 1.19
+author: Wyne
+website: https://github.com/Wyne10
+commands:
+  twinkies:
