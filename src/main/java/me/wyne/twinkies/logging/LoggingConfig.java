@@ -18,6 +18,8 @@ public class LoggingConfig {
     private boolean logChangeNick = true;
     @ConfigField(path = "log-new-nick")
     private boolean logNewNick = true;
+    @ConfigField(path = "log-dupe-nick")
+    private boolean logDupeNick = true;
     @ConfigField(path = "log-change-ip")
     private boolean logChangeIp = true;
     @ConfigField(path = "log-new-ip")
@@ -51,6 +53,10 @@ public class LoggingConfig {
 
     public boolean isLogNewNick() {
         return logNewNick;
+    }
+
+    public boolean isLogDupeNick() {
+        return logDupeNick;
     }
 
     public boolean isLogChangeIp() {

@@ -3,6 +3,8 @@ package me.wyne.twinkies.listeners;
 import me.wyne.twinkies.Twinkies;
 import me.wyne.twinkies.logging.WLog;
 import me.wyne.twinkies.notifications.Notifications;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -24,7 +26,7 @@ public class JoinListener implements Listener {
         if (!plugin.getPlayerStorage().isPlayerRegistered(e.getPlayer()))
         {
             WLog.log(plugin, e.getPlayer(), plugin.getNotificationsConfig().getRegister(), plugin.getLogConfig().isLogRegister());
-            Notifications.sendNotification(plugin, plugin.getNotificationsConfig().getRegister());
+            Notifications.sendNotification(plugin, e.getPlayer(), plugin.getNotificationsConfig().getRegister());
             plugin.getPlayerStorage().savePlayerNickname(e.getPlayer(), e.getPlayer().getName());
             plugin.getPlayerStorage().savePlayerIp(e.getPlayer(), e.getPlayer().getAddress().getAddress().getHostName());
         }
@@ -68,19 +70,25 @@ public class JoinListener implements Listener {
             }
         }
 
-/*        // Handle dupe IP of player
         for (OfflinePlayer player : Bukkit.getOfflinePlayers())
         {
             if (player == e.getPlayer())
                 continue;
 
-            if (plugin.getPlayerStorage().getPlayerIps(player).contains(e.getPlayer().getAddress().getAddress().getHostName()))
+            // Handle dupe nick of player
+            if (plugin.getPlayerStorage().getPlayerNicknames(player) != null && plugin.getPlayerStorage().getPlayerNicknames(player).contains(e.getPlayer().getName()))
             {
-                // TODO ДОДЕЛАТЬ DUPE IP
-                // TODO ПЕРЕДЕЛАТЬ ИНФОРМАЦИЮ О ИГРКОЕ
-                Notifications.sendNotification(plugin, e.getPlayer(), plugin.getNotificationsConfig().getDupeIp());
+                WLog.log(plugin, e.getPlayer(), player, plugin.getNotificationsConfig().getDupeNick(), plugin.getLogConfig().isLogDupeNick());
+                Notifications.sendNotification(plugin, e.getPlayer(), player, plugin.getNotificationsConfig().getDupeNick());
             }
-        }*/
+
+            // Handle dupe IP of player
+            if (plugin.getPlayerStorage().getPlayerIps(player) != null && plugin.getPlayerStorage().getPlayerIps(player).contains(e.getPlayer().getAddress().getAddress().getHostName()))
+            {
+                WLog.log(plugin, e.getPlayer(), player, plugin.getNotificationsConfig().getDupeIp(), plugin.getLogConfig().isLogDupeIp());
+                Notifications.sendNotification(plugin, e.getPlayer(), player, plugin.getNotificationsConfig().getDupeIp());
+            }
+        }
     }
 
 }

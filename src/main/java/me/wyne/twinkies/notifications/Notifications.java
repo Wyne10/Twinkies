@@ -13,17 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class Notifications {
 
-    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final String message)
-    {
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
-            if (!player.hasPermission("twinkies.notifications"))
-                continue;
-
-            player.sendMessage(plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, message)));
-        }
-    }
-
     public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Component message)
     {
         for (Player player : Bukkit.getOnlinePlayers())
@@ -32,20 +21,6 @@ public class Notifications {
                 continue;
 
             player.sendMessage(message);
-        }
-    }
-
-    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final String @NotNull ... messages)
-    {
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
-            if (!player.hasPermission("twinkies.notifications"))
-                return;
-
-            for (String message : messages)
-            {
-                player.sendMessage(plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, message)));
-            }
         }
     }
 

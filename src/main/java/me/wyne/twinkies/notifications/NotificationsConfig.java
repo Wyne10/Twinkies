@@ -15,6 +15,9 @@ public class NotificationsConfig {
                                 "<br>Прошлый никнейм: '%player_last_nick%'";
     @ConfigField(path = "notif-new-nick")
     private String newNick = "<red>Игрок '%player_name%' вошёл на сервер с новым никнеймом";
+    @ConfigField(path = "notif-dupe-nick")
+    private String dupeNick = "<red>Игрок '%player_name%' вошёл на сервер с дублирующегося никнейма: '%player_name%'" +
+                              "<br>Этот IP уже был замечен у игрока %player_dupe%";
     @ConfigField(path = "notif-change-ip")
     private String changeIp = "<red>Игрок '%player_name%' вошёл на сервер с изменённым IP адресом: '%player_ip%'" +
                               "<br>Прошлый IP: '%player_last_ip%'";
@@ -39,6 +42,10 @@ public class NotificationsConfig {
 
     public String getNewNick() {
         return newNick;
+    }
+
+    public String getDupeNick() {
+        return dupeNick;
     }
 
     public String getChangeIp() {

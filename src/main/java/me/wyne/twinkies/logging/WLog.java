@@ -2,6 +2,7 @@ package me.wyne.twinkies.logging;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.wyne.twinkies.Twinkies;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +37,7 @@ public class WLog {
         }
     }
 
-    public static void log(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final Player dupePlayer, @NotNull final String message, final boolean doLog)
+    public static void log(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final OfflinePlayer dupePlayer, @NotNull final String message, final boolean doLog)
     {
         if (doLog)
         {
