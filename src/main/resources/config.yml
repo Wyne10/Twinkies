@@ -1,19 +1,28 @@
 # Настройки уведомлений приходящих администраторам
 
-# Строка для получения информации о игроке
-notif-player-info: "<blue><u>Информация о игроке '%player_name%'"
-
+# Вход нового игрока
 notif-register: "<green>Зарегистрирован новый игрок
              <br>Никнейм: %player_name%
              <br>IP: %player_ip%"
 
+# Вход игрока
 notif-join: "<blue>Игрок '%player_name%' вошёл на сервер с IP '%player_ip%'"
 
+# Вход со сменённым никнеймом
+notif-change-nick: "<red>Игрок '%player_name%' вошёл на сервер с изменённым никнеймом
+                   <br>Прошлый никнейм: '%player_last_nick%'"
+
 # Вход с новым никнеймом
-notif-new-nick: "<red>Игрок '%player_name%' вошёл на сервер с новым никнеймом"
+notif-new-nick: "<red>Игрок '%player_name%' вошёл на сервер с новым никнеймом
+                <br>Прошлый никнейм: '%player_last_nick%'"
+
+# Вход со сменённым IP
+notif-change-ip: "<red>Игрок '%player_name%' вошёл на сервер с изменённым IP адресом: '%player_ip%'
+                 <br>Прошлый IP: '%player_last_ip%'"
 
 # Вход с нового IP
-notif-new-ip: "<red>Игрок '%player_name%' вошёл на сервер с нового IP адреса: '%player_ip%'"
+notif-new-ip: "<red>Игрок '%player_name%' вошёл на сервер с нового IP адреса: '%player_ip%'
+              <br>Прошлый IP: '%player_last_ip%'"
 
 # Вход с дублирующегося IP
 notif-dupe-ip: "<red>Игрок '%player_name%' вошёл на сервер с дублирующегося IP адреса: '%player_ip%' 
@@ -32,8 +41,12 @@ log-register: true
 # Логирование входа игрока
 log-join: true
 # Логирование смены ника игрока
+log-change-nick: true
+# Логирование нового ника игрока
 log-new-nick: true
 # Логирование смены IP игрока
+log-change-ip: true
+# Логирование нового IP игрока
 log-new-ip: true
 # Логирование повторяющегося IP игрока
 log-dupe-ip: true

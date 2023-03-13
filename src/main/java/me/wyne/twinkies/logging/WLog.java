@@ -1,6 +1,8 @@
 package me.wyne.twinkies.logging;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.wyne.twinkies.Twinkies;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class WLog {
@@ -23,10 +25,26 @@ public class WLog {
             plugin.getLogger().severe(message);
     }
 
-    public static void log(@NotNull final Twinkies plugin, @NotNull final String message, final boolean doLog)
+    public static void log(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final String message, final boolean doLog)
     {
         if (doLog)
-            plugin.getLogger().info(message);
+        {
+            for (String msg : message.split("(<br>|<newline>)+"))
+            {
+                plugin.getLogger().info(plugin.getMiniMessage().stripTags(PlaceholderAPI.setPlaceholders(player, msg)));
+            }
+        }
+    }
+
+    public static void log(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final Player dupePlayer, @NotNull final String message, final boolean doLog)
+    {
+        if (doLog)
+        {
+            for (String msg : message.split("(<br>|<newline>)+"))
+            {
+                plugin.getLogger().info(plugin.getMiniMessage().stripTags(PlaceholderAPI.setPlaceholders(player, msg)).replaceAll("(%player_dupe%)+", dupePlayer.getName()));
+            }
+        }
     }
 
 }

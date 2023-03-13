@@ -68,18 +68,45 @@ public class PlayerStorage {
         }
     }
 
+    public boolean isPlayerRegistered(@NotNull final OfflinePlayer player)
+    {
+        if (!playerLastNickname.containsKey(player.getUniqueId()) || playerLastNickname.get(player.getUniqueId()).isEmpty())
+            return false;
+        if (!playerNicknames.containsKey(player.getUniqueId()) || playerNicknames.get(player.getUniqueId()).isEmpty())
+            return false;
+        if (!playerLastIp.containsKey(player.getUniqueId()) || playerLastIp.get(player.getUniqueId()).isEmpty())
+            return false;
+        if (!playerIps.containsKey(player.getUniqueId()) || playerIps.get(player.getUniqueId()).isEmpty())
+            return false;
+        return true;
+    }
+
+    @Nullable
+    public String getPlayerLastNickname(@NotNull final OfflinePlayer player) {
+        if (!playerLastNickname.containsKey(player.getUniqueId()) || playerLastNickname.get(player.getUniqueId()).isEmpty())
+            return null;
+        return playerLastNickname.get(player.getUniqueId());
+    }
+
     @Nullable
     public Set<String> getPlayerNicknames(@NotNull final OfflinePlayer player)
     {
-        if (!playerNicknames.containsKey(player.getUniqueId()))
+        if (!playerNicknames.containsKey(player.getUniqueId()) || playerNicknames.get(player.getUniqueId()).isEmpty())
             return null;
         return playerNicknames.get(player.getUniqueId());
     }
 
     @Nullable
+    public String getPlayerLastIp(@NotNull final OfflinePlayer player) {
+        if (!playerLastIp.containsKey(player.getUniqueId()) || playerLastIp.get(player.getUniqueId()).isEmpty())
+            return null;
+        return playerLastIp.get(player.getUniqueId());
+    }
+
+    @Nullable
     public Set<String> getPlayerIps(@NotNull final OfflinePlayer player)
     {
-        if (!playerIps.containsKey(player.getUniqueId()))
+        if (!playerIps.containsKey(player.getUniqueId()) || playerIps.get(player.getUniqueId()).isEmpty())
             return null;
         return playerIps.get(player.getUniqueId());
     }
@@ -103,7 +130,9 @@ public class PlayerStorage {
                         newPlayerIps.add(playerIpJson.getAsString());
                     }
 
+                    playerLastNickname.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-nickname").getAsString());
                     playerNicknames.put(UUID.fromString(playerObject.getKey()), newPlayerNicknames);
+                    playerLastIp.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-ip").getAsString());
                     playerIps.put(UUID.fromString(playerObject.getKey()), newPlayerIps);
                 }
                 WLog.info(plugin, "Данные из файла 'playerData.json' загружены");
@@ -188,13 +217,11 @@ public class PlayerStorage {
 
         newPlayerNicknames.remove(nickName);
         playerNicknames.put(playerUUID, newPlayerNicknames);
-        if (playerLastNickname.containsKey(playerUUID))
+        if (playerLastNickname.get(playerUUID).equals(nickName))
         {
-            if (playerLastNickname.get(playerUUID).equals(nickName))
-            {
-                playerLastNickname.remove(playerUUID);
-            }
+            playerLastNickname.put(playerUUID, "");
         }
+
 
         executorService.execute(() -> {
             try {
@@ -210,15 +237,10 @@ public class PlayerStorage {
                     }
                 }
                 playerObject.add("nicknames", playerNicknamesJson);
-
-                if (playerObject.has("last-nickname"))
+                if (playerObject.get("last-nickname").getAsString().equals(nickName))
                 {
-                    if (playerObject.get("last-nickname").getAsString().equals(nickName))
-                    {
-                        playerObject.remove("last-nickname");
-                    }
+                    playerObject.addProperty("last-nickname", "");
                 }
-
                 playerObjects.add(playerUUID.toString(), playerObject);
                 PrintWriter writer = new PrintWriter(storageFile);
                 writer.write(gson.toJson(playerObjects));
@@ -243,7 +265,6 @@ public class PlayerStorage {
 
         if (!playerNicknames.containsKey(playerUUID))
         {
-
             WLog.warn(plugin, "Игрок '" + player.getName() + "' не найден в базе данных никнеймов");
             return;
         }
@@ -255,8 +276,7 @@ public class PlayerStorage {
         }
 
         playerNicknames.put(playerUUID, new HashSet<>());
-        if (playerLastNickname.containsKey(playerUUID))
-            playerLastNickname.remove(playerUUID);
+        playerLastNickname.put(playerUUID, "");
 
         executorService.execute(() -> {
             try {
@@ -264,8 +284,7 @@ public class PlayerStorage {
                 JsonObject playerObject = playerObjects.getAsJsonObject(playerUUID.toString());
                 JsonArray playerNicknamesJson = new JsonArray();
                 playerObject.add("nicknames", playerNicknamesJson);
-                if (playerObject.has("last-nickname"))
-                    playerObject.remove("last-nickname");
+                playerObject.addProperty("last-nickname", "");
                 playerObjects.add(player.getUniqueId().toString(), playerObject);
                 PrintWriter writer = new PrintWriter(storageFile);
                 writer.write(gson.toJson(playerObjects));
@@ -355,13 +374,11 @@ public class PlayerStorage {
 
         newPlayerIps.remove(ip);
         playerIps.put(playerUUID, newPlayerIps);
-        if (playerLastIp.containsKey(playerUUID))
+        if (playerLastIp.get(playerUUID).equals(ip))
         {
-            if (playerLastIp.get(playerUUID).equals(ip))
-            {
-                playerLastIp.remove(playerUUID);
-            }
+            playerLastIp.put(playerUUID, "");
         }
+
 
         executorService.execute(() -> {
             try {
@@ -377,15 +394,10 @@ public class PlayerStorage {
                     }
                 }
                 playerObject.add("ips", playerIpsJson);
-
-                if (playerObject.has("last-ip"))
+                if (playerObject.get("last-ip").getAsString().equals(ip))
                 {
-                    if (playerObject.get("last-ip").getAsString().equals(ip))
-                    {
-                        playerObject.remove("last-ip");
-                    }
+                    playerObject.addProperty("last-ip", "");
                 }
-
                 playerObjects.add(player.getUniqueId().toString(), playerObject);
                 PrintWriter writer = new PrintWriter(storageFile);
                 writer.write(gson.toJson(playerObjects));
@@ -421,8 +433,7 @@ public class PlayerStorage {
         }
 
         playerIps.put(playerUUID, new HashSet<>());
-        if (playerLastIp.containsKey(playerUUID))
-            playerLastIp.remove(playerUUID);
+        playerLastIp.put(playerUUID, "");
 
         executorService.execute(() -> {
             try {
@@ -430,8 +441,7 @@ public class PlayerStorage {
                 JsonObject playerObject = playerObjects.getAsJsonObject(playerUUID.toString());
                 JsonArray playerIpsJson = new JsonArray();
                 playerObject.add("ips", playerIpsJson);
-                if (playerObject.has("last-ip"))
-                    playerObject.remove("last-ip");
+                playerObject.addProperty("last-ip", "");
                 playerObjects.add(player.getUniqueId().toString(), playerObject);
                 PrintWriter writer = new PrintWriter(storageFile);
                 writer.write(gson.toJson(playerObjects));

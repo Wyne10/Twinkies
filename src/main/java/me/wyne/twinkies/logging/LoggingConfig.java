@@ -14,8 +14,12 @@ public class LoggingConfig {
     private boolean logRegister = true;
     @ConfigField(path = "log-join")
     private boolean logJoin = true;
+    @ConfigField(path = "log-change-nick")
+    private boolean logChangeNick = true;
     @ConfigField(path = "log-new-nick")
     private boolean logNewNick = true;
+    @ConfigField(path = "log-change-ip")
+    private boolean logChangeIp = true;
     @ConfigField(path = "log-new-ip")
     private boolean logNewIp = true;
     @ConfigField(path = "log-dupe-ip")
@@ -41,8 +45,16 @@ public class LoggingConfig {
         return logJoin;
     }
 
+    public boolean isLogChangeNick() {
+        return logChangeNick;
+    }
+
     public boolean isLogNewNick() {
         return logNewNick;
+    }
+
+    public boolean isLogChangeIp() {
+        return logChangeIp;
     }
 
     public boolean isLogNewIp() {

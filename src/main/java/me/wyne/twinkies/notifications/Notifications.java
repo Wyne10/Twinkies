@@ -2,10 +2,12 @@ package me.wyne.twinkies.notifications;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.wyne.twinkies.Twinkies;
-import me.wyne.twinkies.logging.WLog;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,8 +63,8 @@ public class Notifications {
         }
     }
 
-
-    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final String stringMessage)
+    @NotNull
+    public static Component getPlayerInfo(@NotNull final Twinkies plugin, @NotNull final OfflinePlayer player)
     {
         Component playerInfo = Component.text("Информация о игроке '")
                 .append(Component.text(player.getName()))
@@ -94,10 +96,37 @@ public class Notifications {
             }
         }
 
+        return playerInfo;
+    }
+
+    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final String stringMessage)
+    {
         Component message = plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, stringMessage))
-                .appendNewline()
-                .append(plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, plugin.getNotificationsConfig().getPlayerInfo()))
-                        .hoverEvent(HoverEvent.showText(playerInfo)));
+                .replaceText(
+                        TextReplacementConfig.builder()
+                                .matchLiteral(player.getName())
+                                .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
+                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(plugin, player)))).build());
+        sendNotification(plugin, message);
+    }
+
+    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final OfflinePlayer dupePlayer, @NotNull final String stringMessage)
+    {
+        if (!dupePlayer.hasPlayedBefore())
+            return;
+
+        Component message = plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, stringMessage))
+                .replaceText(
+                        TextReplacementConfig.builder()
+                                .matchLiteral(player.getName())
+                                .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
+                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(plugin, player)))).build())
+                .replaceText(
+                        TextReplacementConfig.builder()
+                                .matchLiteral("%player_dupe%")
+                                .replacement(Component.text(dupePlayer.getName()).decorate(TextDecoration.UNDERLINED)
+                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(plugin, dupePlayer)))).build()
+                );
         sendNotification(plugin, message);
     }
 }
