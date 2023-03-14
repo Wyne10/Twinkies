@@ -40,14 +40,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
 
         WConfig.registerClass(notificationsConfig);
         WConfig.registerClass(loggingConfig);
-        try {
-            WLog.info("Перезагрузка конфига...");
-            WConfig.reloadFields(getConfig());
-        } catch (IllegalAccessException e) {
-            WLog.error("Произошла ошибка при перезагрузке конфига");
-            WLog.error(e.getMessage());
-        }
-        WLog.info("Конфиг перезагружен");
+        WConfig.reloadFields(getConfig());
 
         Bukkit.getPluginManager().registerEvents(joinListener, this);
 

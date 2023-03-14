@@ -13,6 +13,14 @@ public class WLog {
     private static Logger logger = null;
     private static WLogConfig config = null;
 
+    /**
+     * @return Is logger registered and ready to log?
+     */
+    public static boolean isActive()
+    {
+        return logger != null && config != null;
+    }
+
     public static void registerLogger(@NotNull final Logger logger)
     {
         WLog.logger = logger;
@@ -25,25 +33,25 @@ public class WLog {
 
     public static void info(@NotNull final String message)
     {
-        if (config.logInfo())
+        if (isActive() && config.logInfo())
             logger.info(message);
     }
 
     public static void warn(@NotNull final String message)
     {
-        if (config.logWarn())
+        if (isActive() && config.logWarn())
             logger.info(message);
     }
 
     public static void error(@NotNull final String message)
     {
-        if (config.logError())
+        if (isActive() && config.logError())
             logger.severe(message);
     }
 
     public static void log(@NotNull final Player player, @NotNull final String message, final boolean doLog)
     {
-        if (doLog)
+        if (isActive() && doLog)
         {
             for (String msg : message.split("(<br>|<newline>)+"))
             {
@@ -54,7 +62,7 @@ public class WLog {
 
     public static void log(@NotNull final Player player, @NotNull final OfflinePlayer dupePlayer, @NotNull final String message, final boolean doLog)
     {
-        if (doLog)
+        if (isActive() && doLog)
         {
             for (String msg : message.split("(<br>|<newline>)+"))
             {

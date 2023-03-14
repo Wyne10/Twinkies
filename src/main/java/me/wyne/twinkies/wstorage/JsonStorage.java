@@ -59,19 +59,37 @@ public abstract class JsonStorage implements Storage {
         }
     }
 
+    /**
+     * Get element from {@link HashMap}. If HashMap doesn't have given key it will return null.
+     * HashMap is used because data is often stored as key:value.
+     * @param data {@link HashMap} to get element from
+     * @param key Key of element to get from data
+     * @return Element of {@link RetType} from data or null
+     * @param <KeyType> Data {@link HashMap} key type
+     * @param <RetType> Element return type
+     */
     @Nullable
-    public <KeyType, RetType> RetType get(HashMap<KeyType, RetType> data, KeyType toGet)
+    public <KeyType, RetType> RetType get(HashMap<KeyType, RetType> data, KeyType key)
     {
-        if (!data.containsKey(toGet))
+        if (!data.containsKey(key))
             return null;
-        return data.get(toGet);
+        return data.get(key);
     }
 
+    /**
+     * Get element as collection from {@link HashMap}. If HashMap doesn't have given key or retrieved collection is empty it will return null.
+     * HashMap is used because data is often stored as key:value.
+     * @param data {@link HashMap} to get element from
+     * @param key Key of element to get from data
+     * @return Element of {@link RetType} extends Collection from data or null
+     * @param <KeyType> Data {@link HashMap} key type
+     * @param <RetType> Element as collection return type
+     */
     @Nullable
-    public <KeyType, RetType extends Collection> RetType getCollection(HashMap<KeyType, RetType> data, KeyType toGet)
+    public <KeyType, RetType extends Collection> RetType getCollection(HashMap<KeyType, RetType> data, KeyType key)
     {
-        if (!data.containsKey(toGet) || data.get(toGet).isEmpty())
+        if (!data.containsKey(key) || data.get(key).isEmpty())
             return null;
-        return data.get(toGet);
+        return data.get(key);
     }
 }

@@ -1,5 +1,6 @@
 package me.wyne.twinkies.wconfig;
 
+import me.wyne.twinkies.wlog.WLog;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,19 +17,29 @@ public class WConfig {
         registeredObjects.add(object);
     }
 
-    public static void reloadFields(@NotNull final FileConfiguration config) throws IllegalAccessException {
-        for (Object object : registeredObjects)
+    public static void reloadFields(@NotNull final FileConfiguration config) {
+        try
         {
-            for(Field field  : object.getClass().getDeclaredFields())
+            WLog.info("Перезагрузка конфига...");
+            for (Object object : registeredObjects)
             {
-                if (field.isAnnotationPresent(ConfigField.class))
+                for(Field field  : object.getClass().getDeclaredFields())
                 {
-                    field.setAccessible(true);
-                    field.set(object, config.get(field.getAnnotation(ConfigField.class).path()));
-                    field.setAccessible(false);
+                    if (field.isAnnotationPresent(ConfigField.class))
+                    {
+                        field.setAccessible(true);
+                        field.set(object, config.get(field.getAnnotation(ConfigField.class).path()));
+                        field.setAccessible(false);
+                    }
                 }
             }
         }
+        catch (IllegalAccessException e)
+        {
+            WLog.error("Произошла ошибка при перезагрузке конфига");
+            WLog.error(e.getMessage());
+        }
+        WLog.info("Конфиг перезагружен");
     }
 
 }

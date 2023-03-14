@@ -11,7 +11,7 @@ public class LoggingConfig implements WLogConfig {
     private boolean logWarn = true;
     @ConfigField(path = "log-info")
     private boolean logInfo = true;
-    @ConfigField(path = "log-Register")
+    @ConfigField(path = "log-register")
     private boolean logRegister = true;
     @ConfigField(path = "log-join")
     private boolean logJoin = true;
