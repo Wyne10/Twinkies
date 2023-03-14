@@ -2,7 +2,7 @@ package me.wyne.twinkies;
 
 import me.wyne.twinkies.listeners.JoinListener;
 import me.wyne.twinkies.logging.LoggingConfig;
-import me.wyne.twinkies.logging.WLog;
+import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.notifications.NotificationsSettings;
 import me.wyne.twinkies.storage.PlayerStorage;
@@ -31,25 +31,25 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
     private final NotificationsConfig notificationsConfig = new NotificationsConfig();
     private final LoggingConfig loggingConfig = new LoggingConfig();
 
-    // Settings
-    private final HashMap<UUID, NotificationsSettings> notificationsSettings = new HashMap();
-
     // Listeners
     private final JoinListener joinListener = new JoinListener(this);
 
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
+        WLog.registerLogger(getLogger());
+        WLog.registerConfig(loggingConfig);
+
         WConfig.registerClass(notificationsConfig);
         WConfig.registerClass(loggingConfig);
         try {
-            WLog.info(this, "Перезагрузка конфига...");
+            WLog.info("Перезагрузка конфига...");
             WConfig.reloadFields(getConfig());
         } catch (IllegalAccessException e) {
-            WLog.error(this, "Произошла ошибка при перезагрузке конфига");
-            WLog.error(this, e.getMessage());
+            WLog.error("Произошла ошибка при перезагрузке конфига");
+            WLog.error(e.getMessage());
         }
-        WLog.info(this, "Конфиг перезагружен");
+        WLog.info("Конфиг перезагружен");
 
         Bukkit.getPluginManager().registerEvents(joinListener, this);
 
@@ -77,26 +77,9 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
         return loggingConfig;
     }
 
-    @NotNull
-    public NotificationsSettings getNotificationSettings(@NotNull final Player player) {
-        if (!notificationsSettings.containsKey(player.getUniqueId()))
-        {
-            notificationsSettings.put(player.getUniqueId(), new NotificationsSettings());
-        }
-        return notificationsSettings.get(player.getUniqueId());
-    }
-    public void setNotificationsSettings(@NotNull final Player player, @NotNull final NotificationsSettings settings)
-    {
-        notificationsSettings.put(player.getUniqueId(), settings);
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args)
     {
-/*        playerStorage.savePlayerNickname((Player) sender, args[0]);
-        playerStorage.savePlayerIp((Player)sender, ((Player)sender).getAddress().getAddress().getHostAddress());*/
-        playerStorage.clearPlayerNicknames((Player)sender);
-        playerStorage.clearPlayerIps((Player)sender);
         return false;
     }
 }

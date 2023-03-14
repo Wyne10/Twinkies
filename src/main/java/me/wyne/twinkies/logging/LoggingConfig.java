@@ -1,8 +1,9 @@
 package me.wyne.twinkies.logging;
 
 import me.wyne.twinkies.wconfig.ConfigField;
+import me.wyne.twinkies.wlog.WLogConfig;
 
-public class LoggingConfig {
+public class LoggingConfig implements WLogConfig {
 
     @ConfigField(path = "log-err")
     private boolean logError = true;
@@ -10,7 +11,7 @@ public class LoggingConfig {
     private boolean logWarn = true;
     @ConfigField(path = "log-info")
     private boolean logInfo = true;
-    @ConfigField(path = "log-register")
+    @ConfigField(path = "log-Register")
     private boolean logRegister = true;
     @ConfigField(path = "log-join")
     private boolean logJoin = true;
@@ -27,47 +28,47 @@ public class LoggingConfig {
     @ConfigField(path = "log-dupe-ip")
     private boolean logDupeIp = true;
 
-    public boolean isLogError() {
+    public boolean logError() {
         return logError;
     }
 
-    public boolean isLogWarn() {
+    public boolean logWarn() {
         return logWarn;
     }
 
-    public boolean isLogInfo() {
+    public boolean logInfo() {
         return logInfo;
     }
 
-    public boolean isLogRegister() {
+    public boolean logRegister() {
         return logRegister;
     }
 
-    public boolean isLogJoin() {
+    public boolean logJoin() {
         return logJoin;
     }
 
-    public boolean isLogChangeNick() {
+    public boolean logChangeNick() {
         return logChangeNick;
     }
 
-    public boolean isLogNewNick() {
+    public boolean logNewNick() {
         return logNewNick;
     }
 
-    public boolean isLogDupeNick() {
+    public boolean logDupeNick() {
         return logDupeNick;
     }
 
-    public boolean isLogChangeIp() {
+    public boolean logChangeIp() {
         return logChangeIp;
     }
 
-    public boolean isLogNewIp() {
+    public boolean logNewIp() {
         return logNewIp;
     }
 
-    public boolean isLogDupeIp() {
+    public boolean logDupeIp() {
         return logDupeIp;
     }
 }

@@ -2,73 +2,28 @@ package me.wyne.twinkies.storage;
 
 import com.google.gson.*;
 import me.wyne.twinkies.Twinkies;
-import me.wyne.twinkies.logging.WLog;
+import me.wyne.twinkies.wlog.WLog;
+import me.wyne.twinkies.wstorage.JsonStorage;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class PlayerStorage {
-
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-    private final Twinkies plugin;
-
-    private final File storageFile;
+public class PlayerStorage extends JsonStorage {
 
     private final HashMap<UUID, String> playerLastNickname = new HashMap<>();
     private final HashMap<UUID, Set<String>> playerNicknames = new HashMap<>();
     private final HashMap<UUID, String> playerLastIp = new HashMap<>();
     private final HashMap<UUID, Set<String>> playerIps = new HashMap<>();
 
-    private final ExecutorService executorService;
-
     public PlayerStorage(@NotNull final Twinkies plugin)
     {
-        this.plugin = plugin;
-        storageFile = new File(plugin.getDataFolder(), "playerData.json");
-        executorService = Executors.newSingleThreadExecutor();
+        super(plugin, "playerData.json");
     }
 
-    /**
-     * Creates necessary folder is absent.
-     */
-    public void createStorageFolder()
-    {
-        if (!plugin.getDataFolder().exists()) {
-            WLog.info(plugin, "Создание папки плагина...");
-            plugin.getDataFolder().mkdirs();
-            WLog.info(plugin, "Папка плагина создана");
-        }
-    }
-
-    /**
-     * Creates and formats json file.
-     */
-    public void createStorageFile()
-    {
-        if (!storageFile.exists()) {
-            WLog.info(plugin, "Создание файла 'playerData.json'...");
-            try {
-                if (storageFile.createNewFile()) {
-                    PrintWriter writer = new PrintWriter(storageFile);
-                    writer.write("{ }");
-                    writer.flush();
-                    writer.close();
-                }
-            } catch (IOException e) {
-                WLog.error(plugin, "Произошла ошибка при создании файла 'playerData.json'");
-                WLog.error(plugin, e.getMessage());
-            }
-            WLog.info(plugin, "Файл 'playerData.json' создан");
-        }
-    }
-
-    public boolean isPlayerRegistered(@NotNull final OfflinePlayer player)
+    public boolean isPlayerSaved(@NotNull final OfflinePlayer player)
     {
         if (!playerLastNickname.containsKey(player.getUniqueId()) || playerLastNickname.get(player.getUniqueId()).isEmpty())
             return false;
@@ -115,7 +70,7 @@ public class PlayerStorage {
     {
         executorService.execute(() -> {
             try {
-                WLog.info(plugin, "Загрузка данных из файла 'playerData.json'...");
+                WLog.info("Загрузка данных из файла '" + storageFile.getName() + "'...");
                 JsonObject playerObjects = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
                 for (Map.Entry<String, JsonElement> playerObject : playerObjects.entrySet())
                 {
@@ -135,10 +90,10 @@ public class PlayerStorage {
                     playerLastIp.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-ip").getAsString());
                     playerIps.put(UUID.fromString(playerObject.getKey()), newPlayerIps);
                 }
-                WLog.info(plugin, "Данные из файла 'playerData.json' загружены");
+                WLog.info("Данные из файла '" + storageFile.getName() + "' загружены");
             } catch (FileNotFoundException e) {
-                WLog.error(plugin, "Произошла ошибка при загрузке данных из файла 'playerData.json'");
-                WLog.error(plugin, e.getMessage());
+                WLog.error("Произошла ошибка при загрузке данных из файла '" + storageFile.getName() + "'");
+                WLog.error(e.getMessage());
             }
         });
     }
@@ -157,7 +112,7 @@ public class PlayerStorage {
 
         if (newPlayerNicknames.contains(nickName))
         {
-            WLog.warn(plugin, "Никнейм '" + nickName + "' игрока '" + player.getName() + "' уже был сохранён");
+            WLog.warn("Никнейм '" + nickName + "' игрока '" + player.getName() + "' уже был сохранён");
             return;
         }
 
@@ -180,12 +135,12 @@ public class PlayerStorage {
                 writer.write(gson.toJson(playerObjects));
                 writer.flush();
                 writer.close();
-                WLog.info(plugin, "Успешно сохранён ник '" + nickName + "' игрока '" + player.getName() + "'");
+                WLog.info("Успешно сохранён ник '" + nickName + "' игрока '" + player.getName() + "'");
             } catch (FileNotFoundException e) {
-                WLog.error(plugin, "Произошла ошибка при записи никнейма в файл 'playerData.json'");
-                WLog.error(plugin, "Игрок: " + player.getName());
-                WLog.error(plugin, "Сохраняемый никнейм: " + nickName);
-                WLog.error(plugin, e.getMessage());
+                WLog.error("Произошла ошибка при записи никнейма в файл '" + storageFile.getName() + "'");
+                WLog.error("Игрок: " + player.getName());
+                WLog.error("Сохраняемый никнейм: " + nickName);
+                WLog.error(e.getMessage());
             }
         });
     }
@@ -205,13 +160,13 @@ public class PlayerStorage {
         }
         else
         {
-            WLog.warn(plugin, "Игрок '" + player.getName() + "' не найден в базе данных никнеймов");
+            WLog.warn("Игрок '" + player.getName() + "' не найден в базе данных никнеймов");
             return;
         }
 
         if (!newPlayerNicknames.contains(nickName))
         {
-            WLog.warn(plugin, "Никнейм '" + nickName + "' игрока '" + player.getName() + "' не найден");
+            WLog.warn("Никнейм '" + nickName + "' игрока '" + player.getName() + "' не найден");
             return;
         }
 
@@ -246,12 +201,12 @@ public class PlayerStorage {
                 writer.write(gson.toJson(playerObjects));
                 writer.flush();
                 writer.close();
-                WLog.info(plugin, "Успешно удалён ник '" + nickName + "' игрока '" + player.getName() + "'");
+                WLog.info("Успешно удалён ник '" + nickName + "' игрока '" + player.getName() + "'");
             } catch (FileNotFoundException e) {
-                WLog.error(plugin, "Произошла ошибка при удалении никнейма из файла 'playerData.json'");
-                WLog.error(plugin, "Игрок: " + player.getName());
-                WLog.error(plugin, "Удаляемый никнейм: " + nickName);
-                WLog.error(plugin, e.getMessage());
+                WLog.error("Произошла ошибка при удалении никнейма из файла '" + storageFile.getName() + "'");
+                WLog.error("Игрок: " + player.getName());
+                WLog.error("Удаляемый никнейм: " + nickName);
+                WLog.error(e.getMessage());
             }
         });
     }
@@ -265,13 +220,13 @@ public class PlayerStorage {
 
         if (!playerNicknames.containsKey(playerUUID))
         {
-            WLog.warn(plugin, "Игрок '" + player.getName() + "' не найден в базе данных никнеймов");
+            WLog.warn("Игрок '" + player.getName() + "' не найден в базе данных никнеймов");
             return;
         }
 
         if (playerNicknames.get(playerUUID).isEmpty())
         {
-            WLog.warn(plugin, "Игрок '" + player.getName() + "' не имеет никнеймов в базе данных");
+            WLog.warn("Игрок '" + player.getName() + "' не имеет никнеймов в базе данных");
             return;
         }
 
@@ -290,11 +245,11 @@ public class PlayerStorage {
                 writer.write(gson.toJson(playerObjects));
                 writer.flush();
                 writer.close();
-                WLog.info(plugin, "Успешно очищены никнеймы игрока '" + player.getName() + "'");
+                WLog.info("Успешно очищены никнеймы игрока '" + player.getName() + "'");
             } catch (FileNotFoundException e) {
-                WLog.error(plugin, "Произошла ошибка при очищении никнеймов из файла 'playerData.json'");
-                WLog.error(plugin, "Игрок: " + player.getName());
-                WLog.error(plugin, e.getMessage());
+                WLog.error("Произошла ошибка при очищении никнеймов из файла '" + storageFile.getName() + "'");
+                WLog.error("Игрок: " + player.getName());
+                WLog.error(e.getMessage());
             }
         });
     }
@@ -313,7 +268,7 @@ public class PlayerStorage {
 
         if (newPlayerIps.contains(ip))
         {
-            WLog.warn(plugin, "IP '" + ip + "' игрока '" + player.getName() + "' уже был сохранён");
+            WLog.warn("IP '" + ip + "' игрока '" + player.getName() + "' уже был сохранён");
             return;
         }
 
@@ -336,12 +291,12 @@ public class PlayerStorage {
                 writer.write(gson.toJson(playerObjects));
                 writer.flush();
                 writer.close();
-                WLog.info(plugin, "Успешно сохранён IP '" + ip + "' игрока '" + player.getName() + "'");
+                WLog.info("Успешно сохранён IP '" + ip + "' игрока '" + player.getName() + "'");
             } catch (FileNotFoundException e) {
-                WLog.error(plugin, "Произошла ошибка при записи IP в файл 'playerData.json'");
-                WLog.error(plugin, "Игрок: " + player.getName());
-                WLog.error(plugin, "Сохраняемый IP: " + ip);
-                WLog.error(plugin, e.getMessage());
+                WLog.error("Произошла ошибка при записи IP в файл '" + storageFile.getName() + "'");
+                WLog.error("Игрок: " + player.getName());
+                WLog.error("Сохраняемый IP: " + ip);
+                WLog.error(e.getMessage());
             }
         });
     }
@@ -361,14 +316,14 @@ public class PlayerStorage {
         }
         else
         {
-            WLog.warn(plugin, "Игрок '" + player.getName() + "' не найден в базе данных IP");
+            WLog.warn("Игрок '" + player.getName() + "' не найден в базе данных IP");
             return;
         }
 
 
         if (!newPlayerIps.contains(ip))
         {
-            WLog.warn(plugin, "IP '" + ip + "' игрока '" + player.getName() + "' не найден");
+            WLog.warn("IP '" + ip + "' игрока '" + player.getName() + "' не найден");
             return;
         }
 
@@ -403,12 +358,12 @@ public class PlayerStorage {
                 writer.write(gson.toJson(playerObjects));
                 writer.flush();
                 writer.close();
-                WLog.info(plugin, "Успешно удалён IP '" + ip + "' игрока '" + player.getName() + "'");
+                WLog.info("Успешно удалён IP '" + ip + "' игрока '" + player.getName() + "'");
             } catch (FileNotFoundException e) {
-                WLog.error(plugin, "Произошла ошибка при удалении IP из файла 'playerData.json'");
-                WLog.error(plugin, "Игрок: " + player.getName());
-                WLog.error(plugin, "Удаляемый IP: " + ip);
-                WLog.error(plugin, e.getMessage());
+                WLog.error("Произошла ошибка при удалении IP из файла '" + storageFile.getName() + "'");
+                WLog.error("Игрок: " + player.getName());
+                WLog.error("Удаляемый IP: " + ip);
+                WLog.error(e.getMessage());
             }
         });
     }
@@ -422,13 +377,13 @@ public class PlayerStorage {
 
         if (!playerIps.containsKey(playerUUID))
         {
-            WLog.warn(plugin, "Игрок '" + player.getName() + "' не найден в базе данных IP");
+            WLog.warn("Игрок '" + player.getName() + "' не найден в базе данных IP");
             return;
         }
 
         if (playerIps.get(playerUUID).isEmpty())
         {
-            WLog.warn(plugin, "Игрок '" + player.getName() + "' не имеет IP в базе данных");
+            WLog.warn("Игрок '" + player.getName() + "' не имеет IP в базе данных");
             return;
         }
 
@@ -447,11 +402,11 @@ public class PlayerStorage {
                 writer.write(gson.toJson(playerObjects));
                 writer.flush();
                 writer.close();
-                WLog.info(plugin, "Успешно очищены IP игрока '" + player.getName() + "'");
+                WLog.info("Успешно очищены IP игрока '" + player.getName() + "'");
             } catch (FileNotFoundException e) {
-                WLog.error(plugin, "Произошла ошибка при очищении IP из файла 'playerData.json'");
-                WLog.error(plugin, "Игрок: " + player.getName());
-                WLog.error(plugin, e.getMessage());
+                WLog.error("Произошла ошибка при очищении IP из файла '" + storageFile.getName() + "'");
+                WLog.error("Игрок: " + player.getName());
+                WLog.error(e.getMessage());
             }
         });
     }
