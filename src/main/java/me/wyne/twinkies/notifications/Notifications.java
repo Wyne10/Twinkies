@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Notifications {
 
-    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Component message)
+    public static void sendNotification(@NotNull final Component message)
     {
         for (Player player : Bukkit.getOnlinePlayers())
         {
@@ -24,7 +24,7 @@ public class Notifications {
         }
     }
 
-    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Component @NotNull ... messages)
+    public static void sendNotification(@NotNull final Component @NotNull ... messages)
     {
         for (Player player : Bukkit.getOnlinePlayers())
         {

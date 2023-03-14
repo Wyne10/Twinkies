@@ -14,9 +14,21 @@ import java.util.*;
 public class PlayerStorage extends JsonStorage {
 
     private final HashMap<UUID, String> playerLastNickname = new HashMap<>();
+    public HashMap<UUID, String> playerLastNickname() {
+        return playerLastNickname;
+    }
     private final HashMap<UUID, Set<String>> playerNicknames = new HashMap<>();
+    public HashMap<UUID, Set<String>> playerNicknames() {
+        return playerNicknames;
+    }
     private final HashMap<UUID, String> playerLastIp = new HashMap<>();
+    public HashMap<UUID, String> playerLastIp() {
+        return playerLastIp;
+    }
     private final HashMap<UUID, Set<String>> playerIps = new HashMap<>();
+    public HashMap<UUID, Set<String>> playerIps() {
+        return playerIps;
+    }
 
     public PlayerStorage(@NotNull final Twinkies plugin)
     {
@@ -34,36 +46,6 @@ public class PlayerStorage extends JsonStorage {
         if (!playerIps.containsKey(player.getUniqueId()) || playerIps.get(player.getUniqueId()).isEmpty())
             return false;
         return true;
-    }
-
-    @Nullable
-    public String getPlayerLastNickname(@NotNull final OfflinePlayer player) {
-        if (!playerLastNickname.containsKey(player.getUniqueId()) || playerLastNickname.get(player.getUniqueId()).isEmpty())
-            return null;
-        return playerLastNickname.get(player.getUniqueId());
-    }
-
-    @Nullable
-    public Set<String> getPlayerNicknames(@NotNull final OfflinePlayer player)
-    {
-        if (!playerNicknames.containsKey(player.getUniqueId()) || playerNicknames.get(player.getUniqueId()).isEmpty())
-            return null;
-        return playerNicknames.get(player.getUniqueId());
-    }
-
-    @Nullable
-    public String getPlayerLastIp(@NotNull final OfflinePlayer player) {
-        if (!playerLastIp.containsKey(player.getUniqueId()) || playerLastIp.get(player.getUniqueId()).isEmpty())
-            return null;
-        return playerLastIp.get(player.getUniqueId());
-    }
-
-    @Nullable
-    public Set<String> getPlayerIps(@NotNull final OfflinePlayer player)
-    {
-        if (!playerIps.containsKey(player.getUniqueId()) || playerIps.get(player.getUniqueId()).isEmpty())
-            return null;
-        return playerIps.get(player.getUniqueId());
     }
 
     public void loadData()
