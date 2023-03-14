@@ -6,9 +6,12 @@ import me.wyne.twinkies.wlog.WLog;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,5 +57,21 @@ public abstract class JsonStorage implements Storage {
             }
             WLog.info("Файл '" + storageFile.getName() + "' создан");
         }
+    }
+
+    @Nullable
+    public <KeyType, RetType> RetType get(HashMap<KeyType, RetType> data, KeyType toGet)
+    {
+        if (!data.containsKey(toGet))
+            return null;
+        return data.get(toGet);
+    }
+
+    @Nullable
+    public <KeyType, RetType extends Collection> RetType getCollection(HashMap<KeyType, RetType> data, KeyType toGet)
+    {
+        if (!data.containsKey(toGet) || data.get(toGet).isEmpty())
+            return null;
+        return data.get(toGet);
     }
 }
