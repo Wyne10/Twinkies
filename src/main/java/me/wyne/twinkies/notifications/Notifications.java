@@ -13,6 +13,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class Notifications {
 
+    private static Twinkies plugin;
+
+    public static void registerPlugin(@NotNull final Twinkies plugin)
+    {
+        Notifications.plugin = plugin;
+    }
+
     public static void sendNotification(@NotNull final Component message)
     {
         for (Player player : Bukkit.getOnlinePlayers())
@@ -39,7 +46,7 @@ public class Notifications {
     }
 
     @NotNull
-    public static Component getPlayerInfo(@NotNull final Twinkies plugin, @NotNull final OfflinePlayer player)
+    public static Component getPlayerInfo(@NotNull final OfflinePlayer player)
     {
         Component playerInfo = Component.text("Информация о игроке '")
                 .append(Component.text(player.getName()))
@@ -48,9 +55,9 @@ public class Notifications {
                 .append(Component.text("Никнеймы:"))
                 .appendNewline();
 
-        if (plugin.getPlayerStorage().getPlayerNicknames(player) != null)
+        if (plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerNicknames(), player.getUniqueId()) != null)
         {
-            for (String nickname : plugin.getPlayerStorage().getPlayerNicknames(player))
+            for (String nickname : plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerNicknames(), player.getUniqueId()))
             {
                 playerInfo = playerInfo.append(Component.text(nickname)).appendNewline();
             }
@@ -58,12 +65,12 @@ public class Notifications {
 
         playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).appendNewline();
 
-        if (plugin.getPlayerStorage().getPlayerIps(player) != null)
+        if (plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerIps(), player.getUniqueId()) != null)
         {
             int i = 0;
-            for (String ip : plugin.getPlayerStorage().getPlayerIps(player))
+            for (String ip : plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerIps(), player.getUniqueId()))
             {
-                if (i != plugin.getPlayerStorage().getPlayerIps(player).size() - 1)
+                if (i != plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerIps(), player.getUniqueId()).size() - 1)
                     playerInfo = playerInfo.append(Component.text(ip)).appendNewline();
                 else
                     playerInfo = playerInfo.append(Component.text(ip));
@@ -74,18 +81,18 @@ public class Notifications {
         return playerInfo;
     }
 
-    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final String stringMessage)
+    public static void sendNotification(@NotNull final Player player, @NotNull final String stringMessage)
     {
         Component message = plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, stringMessage))
                 .replaceText(
                         TextReplacementConfig.builder()
                                 .matchLiteral(player.getName())
                                 .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(plugin, player)))).build());
-        sendNotification(plugin, message);
+                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(player)))).build());
+        sendNotification(message);
     }
 
-    public static void sendNotification(@NotNull final Twinkies plugin, @NotNull final Player player, @NotNull final OfflinePlayer dupePlayer, @NotNull final String stringMessage)
+    public static void sendNotification(@NotNull final Player player, @NotNull final OfflinePlayer dupePlayer, @NotNull final String stringMessage)
     {
         if (!dupePlayer.hasPlayedBefore())
             return;
@@ -95,13 +102,12 @@ public class Notifications {
                         TextReplacementConfig.builder()
                                 .matchLiteral(player.getName())
                                 .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(plugin, player)))).build())
+                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(player)))).build())
                 .replaceText(
                         TextReplacementConfig.builder()
                                 .matchLiteral("%player_dupe%")
                                 .replacement(Component.text(dupePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(plugin, dupePlayer)))).build()
-                );
-        sendNotification(plugin, message);
+                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(dupePlayer)))).build());
+        sendNotification(message);
     }
 }

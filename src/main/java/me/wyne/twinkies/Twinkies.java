@@ -2,9 +2,9 @@ package me.wyne.twinkies;
 
 import me.wyne.twinkies.listeners.JoinListener;
 import me.wyne.twinkies.logging.LoggingConfig;
+import me.wyne.twinkies.notifications.Notifications;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.notifications.NotificationsConfig;
-import me.wyne.twinkies.notifications.NotificationsSettings;
 import me.wyne.twinkies.storage.PlayerStorage;
 import me.wyne.twinkies.wconfig.WConfig;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -12,12 +12,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.UUID;
 
 public final class Twinkies extends JavaPlugin implements CommandExecutor {
 
@@ -39,6 +35,8 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
         this.saveDefaultConfig();
         WLog.registerLogger(getLogger());
         WLog.registerConfig(loggingConfig);
+
+        Notifications.registerPlugin(this);
 
         WConfig.registerClass(notificationsConfig);
         WConfig.registerClass(loggingConfig);

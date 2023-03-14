@@ -41,7 +41,7 @@ public class JoinListener implements Listener {
         if (!p.hasPlayedBefore())
         {
             WLog.log(p, notifConfig.getRegister(), logConfig.logRegister());
-            Notifications.sendNotification(plugin, p, notifConfig.getRegister());
+            Notifications.sendNotification(p, notifConfig.getRegister());
         }
 
         // Save player if he isn't fully in database
@@ -53,14 +53,14 @@ public class JoinListener implements Listener {
         else
         {
             WLog.log(p, notifConfig.getJoin(), logConfig.logJoin());
-            Notifications.sendNotification(plugin, p, notifConfig.getJoin());
+            Notifications.sendNotification(p, notifConfig.getJoin());
         }
 
         // Handle new nick of player
         if (!storage.getCollection(storage.playerNicknames(), uuid).contains(p.getName()))
         {
             WLog.log(p, notifConfig.getNewNick(), logConfig.logNewNick());
-            Notifications.sendNotification(plugin, p, notifConfig.getNewNick());
+            Notifications.sendNotification(p, notifConfig.getNewNick());
             storage.savePlayerNickname(p, p.getName());
         }
         else
@@ -69,7 +69,7 @@ public class JoinListener implements Listener {
             if (!storage.get(storage.playerLastNickname(), uuid).equals(p.getName()))
             {
                 WLog.log(p, notifConfig.getChangeNick(), logConfig.logChangeNick());
-                Notifications.sendNotification(plugin, p, notifConfig.getChangeNick());
+                Notifications.sendNotification(p, notifConfig.getChangeNick());
             }
         }
 
@@ -77,7 +77,7 @@ public class JoinListener implements Listener {
         if (!storage.getCollection(storage.playerIps(), uuid).contains(ip))
         {
             WLog.log(p, notifConfig.getNewIp(), logConfig.logNewIp());
-            Notifications.sendNotification(plugin, p, notifConfig.getNewIp());
+            Notifications.sendNotification(p, notifConfig.getNewIp());
             storage.savePlayerIp(p, ip);
         }
         else
@@ -86,7 +86,7 @@ public class JoinListener implements Listener {
             if (!storage.get(storage.playerLastIp(), uuid).equals(ip))
             {
                 WLog.log(p, notifConfig.getChangeIp(), logConfig.logChangeIp());
-                Notifications.sendNotification(plugin, p, notifConfig.getChangeIp());
+                Notifications.sendNotification(p, notifConfig.getChangeIp());
             }
         }
 
@@ -99,14 +99,14 @@ public class JoinListener implements Listener {
             if (storage.getCollection(storage.playerNicknames(), player.getUniqueId()) != null && storage.getCollection(storage.playerNicknames(), player.getUniqueId()).contains(p.getName()))
             {
                 WLog.log(p, player, notifConfig.getDupeNick(), logConfig.logDupeNick());
-                Notifications.sendNotification(plugin, p, player, notifConfig.getDupeNick());
+                Notifications.sendNotification(p, player, notifConfig.getDupeNick());
             }
 
             // Handle dupe IP of player
             if (storage.getCollection(storage.playerIps(), player.getUniqueId()) != null && storage.getCollection(storage.playerIps(), player.getUniqueId()).contains(ip))
             {
                 WLog.log(p, player, notifConfig.getDupeIp(), logConfig.logDupeIp());
-                Notifications.sendNotification(plugin, p, player, notifConfig.getDupeIp());
+                Notifications.sendNotification(p, player, notifConfig.getDupeIp());
             }
         }
     }
