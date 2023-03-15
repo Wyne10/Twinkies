@@ -107,7 +107,7 @@ public abstract class JsonStorage implements Storage {
                 writer.write(gson.toJson(datas));
                 writer.flush();
                 writer.close();
-                WLog.info("Успешно сохранено значение '" + value + "' ключа '" + key + "' по пути '" + path + "'");
+                WLog.info("Сохранено значение '" + value + "' ключа '" + key + "' по пути '" + path + "'");
             }
             catch (FileNotFoundException e)
             {
@@ -151,7 +151,7 @@ public abstract class JsonStorage implements Storage {
                 writer.write(gson.toJson(datas));
                 writer.flush();
                 writer.close();
-                WLog.info("Успешно сохранено значение '" + value + "' коллекции ключа '" + key + "'по пути '" + path + "'");
+                WLog.info("Сохранено значение '" + value + "' коллекции ключа '" + key + "'по пути '" + path + "'");
             }
             catch (FileNotFoundException e)
             {
@@ -185,7 +185,7 @@ public abstract class JsonStorage implements Storage {
                 writer.write(gson.toJson(datas));
                 writer.flush();
                 writer.close();
-                WLog.info("Успешно удалено значение ключа '" + key + "' по пути '" + path + "'");
+                WLog.info("Удалено значение ключа '" + key + "' по пути '" + path + "'");
             } catch (FileNotFoundException e) {
                 WLog.error("Произошла ошибка при удалении значения из файла '" + storageFile.getName() + "'");
                 WLog.error("Ключ: " + key);
@@ -239,7 +239,7 @@ public abstract class JsonStorage implements Storage {
                 writer.write(gson.toJson(datas));
                 writer.flush();
                 writer.close();
-                WLog.info("Успешно удалено значение '" + value + "' коллекции ключа '" + key + "' по пути '" + path + "'");
+                WLog.info("Удалено значение '" + value + "' коллекции ключа '" + key + "' по пути '" + path + "'");
             } catch (FileNotFoundException e) {
                 WLog.error("Произошла ошибка при удалении значения из файла '" + storageFile.getName() + "'");
                 WLog.error("Ключ: " + key);
@@ -279,7 +279,7 @@ public abstract class JsonStorage implements Storage {
                 writer.write(gson.toJson(datas));
                 writer.flush();
                 writer.close();
-                WLog.info("Успешно очищена коллекция ключа '" + key + "' по пути '" + path + "'");
+                WLog.info("Очищена коллекция ключа '" + key + "' по пути '" + path + "'");
             } catch (FileNotFoundException e) {
                 WLog.error("Произошла ошибка при удалении значения из файла '" + storageFile.getName() + "'");
                 WLog.error("Ключ: " + key);
