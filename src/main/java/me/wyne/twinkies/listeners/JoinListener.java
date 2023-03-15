@@ -47,8 +47,10 @@ public class JoinListener implements Listener {
         // Save player if he isn't fully in database
         if (!storage.isPlayerSaved(p))
         {
-            storage.savePlayerNickname(p, p.getName());
-            storage.savePlayerIp(p, ip);
+            storage.save(storage.playerLastNickname(), uuid, p.getName(), "last-nickname");
+            storage.save(storage.playerLastIp(), uuid, ip, "last-ip");
+            storage.saveCollection(storage.playerNicknames(), uuid, p.getName(), "nicknames");
+            storage.saveCollection(storage.playerIps(), uuid, ip, "ips");
         }
         else
         {
@@ -61,7 +63,8 @@ public class JoinListener implements Listener {
         {
             WLog.log(p, notifConfig.getNewNick(), logConfig.logNewNick());
             Notifications.sendNotification(p, notifConfig.getNewNick());
-            storage.savePlayerNickname(p, p.getName());
+            storage.save(storage.playerLastNickname(), uuid, p.getName(), "last-nickname");
+            storage.saveCollection(storage.playerNicknames(), uuid, p.getName(), "nicknames");
         }
         else
         {
@@ -78,7 +81,8 @@ public class JoinListener implements Listener {
         {
             WLog.log(p, notifConfig.getNewIp(), logConfig.logNewIp());
             Notifications.sendNotification(p, notifConfig.getNewIp());
-            storage.savePlayerIp(p, ip);
+            storage.save(storage.playerLastIp(), uuid, ip, "last-ip");
+            storage.saveCollection(storage.playerIps(), uuid, ip, "ips");
         }
         else
         {
