@@ -53,9 +53,10 @@ public interface Storage {
      * @param <KeyType> Data {@link HashMap} key type
      * @param <ValType> Data {@link HashMap} value type
      */
-    <KeyType, ValType> void save(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final ValType value, @NotNull final String path);
+    <KeyType, ValType> void save(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final ValType value, final String path);
     /**
      * Save element to {@link Collection} in data {@link HashMap} and to storageFile to given path.
+     * Set path as null to save whole key to storageFile.
      * @param data {@link HashMap} to save {@link Collection} to
      * @param key {@link HashMap} key to {@link Collection} to save element to
      * @param value Value to save
@@ -76,10 +77,11 @@ public interface Storage {
      * @param <KeyType> Data {@link HashMap} key type
      * @param <ValType> Data {@link HashMap} value type
      */
-    <KeyType, ValType> boolean remove(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final String path);
+    <KeyType, ValType> boolean remove(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, final String path);
 
     /**
      * Remove element from {@link Collection} in data {@link HashMap} and from storageFile from given path.
+     * Set path as null to remove whole key from storageFile.
      * @param data {@link HashMap} to remove {@link Collection} element from
      * @param key {@link HashMap} key to {@link Collection} to remove element from
      * @param value Value to remove
@@ -101,5 +103,5 @@ public interface Storage {
      * @param <ValType> {@link Collection} value type
      * @param <ColType> Type of {@link Collection}
      */
-    <KeyType, ValType, ColType extends Collection<ValType>> boolean clearCollection(@NotNull HashMap<KeyType, ColType> data, @NotNull final KeyType key, @NotNull final String path);
+    <KeyType, ValType, ColType extends Collection<ValType>> boolean clearCollection(@NotNull HashMap<KeyType, ColType> data, @NotNull final KeyType key, final String path);
 }

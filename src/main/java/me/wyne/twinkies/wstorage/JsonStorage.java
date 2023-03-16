@@ -91,7 +91,7 @@ public abstract class JsonStorage implements Storage {
         return data.get(key);
     }
 
-    public <KeyType, ValType> void save(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final ValType value, @NotNull final String path)
+    public <KeyType, ValType> void save(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final ValType value, final String path)
     {
         data.put(key, value);
 
@@ -99,15 +99,25 @@ public abstract class JsonStorage implements Storage {
             try
             {
                 JsonObject datas = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
-                JsonObject dataObject = datas.has(key.toString()) ?
-                        datas.getAsJsonObject(key.toString()) : new JsonObject();
-                dataObject.add(path, gson.toJsonTree(value));
-                datas.add(key.toString(), dataObject);
+                if (path != null)
+                {
+                    JsonObject dataObject = datas.has(key.toString()) ?
+                            datas.getAsJsonObject(key.toString()) : new JsonObject();
+                    dataObject.add(path, gson.toJsonTree(value));
+                    datas.add(key.toString(), dataObject);
+                }
+                else
+                {
+                    datas.add(key.toString(), gson.toJsonTree(value));
+                }
                 PrintWriter writer = new PrintWriter(storageFile);
                 writer.write(gson.toJson(datas));
                 writer.flush();
                 writer.close();
-                WLog.info("Сохранено значение '" + value + "' ключа '" + key + "' по пути '" + path + "'");
+                if (path != null)
+                    WLog.info("Сохранено значение '" + value + "' ключа '" + key + "' по пути '" + path + "'");
+                else
+                    WLog.info("Сохранено значение '" + value + "' ключа '" + key + "'");
             }
             catch (FileNotFoundException e)
             {
@@ -126,7 +136,7 @@ public abstract class JsonStorage implements Storage {
         if (data.containsKey(key))
             newCollection = data.get(key);
 
-        if (newCollection.contains(key))
+        if (newCollection.contains(value))
         {
             WLog.warn("Значение '" + value + "' коллекции ключа '" + key + "' уже было сохранено");
             WLog.warn("Путь: " + path);
@@ -165,7 +175,7 @@ public abstract class JsonStorage implements Storage {
         return true;
     }
 
-    public <KeyType, ValType> boolean remove(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final String path)
+    public <KeyType, ValType> boolean remove(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, final String path)
     {
         if (!data.containsKey(key))
         {
@@ -178,14 +188,24 @@ public abstract class JsonStorage implements Storage {
         executorService.execute(() -> {
             try {
                 JsonObject datas = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
-                JsonObject dataObject = datas.getAsJsonObject(key.toString());
-                dataObject.remove(path);
-                datas.add(key.toString(), dataObject);
+                if (path != null)
+                {
+                    JsonObject dataObject = datas.getAsJsonObject(key.toString());
+                    dataObject.remove(path);
+                    datas.add(key.toString(), dataObject);
+                }
+                else
+                {
+                    datas.remove(key.toString());
+                }
                 PrintWriter writer = new PrintWriter(storageFile);
                 writer.write(gson.toJson(datas));
                 writer.flush();
                 writer.close();
-                WLog.info("Удалено значение ключа '" + key + "' по пути '" + path + "'");
+                if (path != null)
+                    WLog.info("Удалено значение ключа '" + key + "' по пути '" + path + "'");
+                else
+                    WLog.info("Удалено значение ключа '" + key + "'");
             } catch (FileNotFoundException e) {
                 WLog.error("Произошла ошибка при удалении значения из файла '" + storageFile.getName() + "'");
                 WLog.error("Ключ: " + key);
@@ -195,7 +215,7 @@ public abstract class JsonStorage implements Storage {
         });
         return true;
     }
-    public <KeyType, ValType, ColType extends Collection<ValType>> boolean removeCollection(@NotNull HashMap<KeyType, ColType> data, @NotNull final KeyType key, @NotNull final ValType value, @NotNull final String path)
+    public <KeyType, ValType, ColType extends Collection<ValType>> boolean removeCollection(@NotNull HashMap<KeyType, ColType> data, @NotNull final KeyType key, @NotNull final ValType value, final String path)
     {
         Collection<ValType> newCollection;
 
@@ -251,7 +271,7 @@ public abstract class JsonStorage implements Storage {
         return true;
     }
 
-    public <KeyType, ValType, ColType extends Collection<ValType>> boolean clearCollection(@NotNull HashMap<KeyType, ColType> data, @NotNull final KeyType key, @NotNull final String path)
+    public <KeyType, ValType, ColType extends Collection<ValType>> boolean clearCollection(@NotNull HashMap<KeyType, ColType> data, @NotNull final KeyType key, final String path)
     {
         if (!data.containsKey(key))
         {

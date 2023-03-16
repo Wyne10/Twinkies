@@ -2,6 +2,7 @@ package me.wyne.twinkies.listeners;
 
 import me.wyne.twinkies.Twinkies;
 import me.wyne.twinkies.logging.LoggingConfig;
+import me.wyne.twinkies.notifications.NotificationType;
 import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.storage.PlayerStorage;
 import me.wyne.twinkies.wlog.WLog;
@@ -38,10 +39,12 @@ public class JoinListener implements Listener {
         UUID uuid = p.getUniqueId();
         String ip = p.getAddress().getAddress().getHostAddress();
 
+        plugin.getNotificationsSettingsStorage().initializePlayer(e.getPlayer());
+
         if (!p.hasPlayedBefore())
         {
             WLog.log(p, notifConfig.getRegister(), logConfig.logRegister());
-            Notifications.sendNotification(p, notifConfig.getRegister());
+            Notifications.sendNotification(p, notifConfig.getRegister(), NotificationType.REGISTER);
         }
 
         // Save player if he isn't fully in database
@@ -55,14 +58,14 @@ public class JoinListener implements Listener {
         else
         {
             WLog.log(p, notifConfig.getJoin(), logConfig.logJoin());
-            Notifications.sendNotification(p, notifConfig.getJoin());
+            Notifications.sendNotification(p, notifConfig.getJoin(), NotificationType.JOIN);
         }
 
         // Handle new nick of player
         if (!storage.getCollection(storage.playerNicknames(), uuid).contains(p.getName()))
         {
             WLog.log(p, notifConfig.getNewNick(), logConfig.logNewNick());
-            Notifications.sendNotification(p, notifConfig.getNewNick());
+            Notifications.sendNotification(p, notifConfig.getNewNick(), NotificationType.NEW_NICK);
             storage.save(storage.playerLastNickname(), uuid, p.getName(), "last-nickname");
             storage.saveCollection(storage.playerNicknames(), uuid, p.getName(), "nicknames");
         }
@@ -72,7 +75,7 @@ public class JoinListener implements Listener {
             if (!storage.get(storage.playerLastNickname(), uuid).equals(p.getName()))
             {
                 WLog.log(p, notifConfig.getChangeNick(), logConfig.logChangeNick());
-                Notifications.sendNotification(p, notifConfig.getChangeNick());
+                Notifications.sendNotification(p, notifConfig.getChangeNick(), NotificationType.CHANGE_NICK);
             }
         }
 
@@ -80,7 +83,7 @@ public class JoinListener implements Listener {
         if (!storage.getCollection(storage.playerIps(), uuid).contains(ip))
         {
             WLog.log(p, notifConfig.getNewIp(), logConfig.logNewIp());
-            Notifications.sendNotification(p, notifConfig.getNewIp());
+            Notifications.sendNotification(p, notifConfig.getNewIp(), NotificationType.NEW_IP);
             storage.save(storage.playerLastIp(), uuid, ip, "last-ip");
             storage.saveCollection(storage.playerIps(), uuid, ip, "ips");
         }
@@ -90,7 +93,7 @@ public class JoinListener implements Listener {
             if (!storage.get(storage.playerLastIp(), uuid).equals(ip))
             {
                 WLog.log(p, notifConfig.getChangeIp(), logConfig.logChangeIp());
-                Notifications.sendNotification(p, notifConfig.getChangeIp());
+                Notifications.sendNotification(p, notifConfig.getChangeIp(), NotificationType.CHANGE_IP);
             }
         }
 
@@ -103,14 +106,14 @@ public class JoinListener implements Listener {
             if (storage.getCollection(storage.playerNicknames(), player.getUniqueId()) != null && storage.getCollection(storage.playerNicknames(), player.getUniqueId()).contains(p.getName()))
             {
                 WLog.log(p, player, notifConfig.getDupeNick(), logConfig.logDupeNick());
-                Notifications.sendNotification(p, player, notifConfig.getDupeNick());
+                Notifications.sendNotification(p, player, notifConfig.getDupeNick(), NotificationType.DUPE_NICK);
             }
 
             // Handle dupe IP of player
             if (storage.getCollection(storage.playerIps(), player.getUniqueId()) != null && storage.getCollection(storage.playerIps(), player.getUniqueId()).contains(ip))
             {
                 WLog.log(p, player, notifConfig.getDupeIp(), logConfig.logDupeIp());
-                Notifications.sendNotification(p, player, notifConfig.getDupeIp());
+                Notifications.sendNotification(p, player, notifConfig.getDupeIp(), NotificationType.DUPE_IP);
             }
         }
     }

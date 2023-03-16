@@ -3,6 +3,7 @@ package me.wyne.twinkies;
 import me.wyne.twinkies.listeners.JoinListener;
 import me.wyne.twinkies.logging.LoggingConfig;
 import me.wyne.twinkies.notifications.Notifications;
+import me.wyne.twinkies.storage.NotificationsSettingsStorage;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.storage.PlayerStorage;
@@ -12,17 +13,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class Twinkies extends JavaPlugin implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+
+public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCompleter {
 
     // API Stuff
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     // Storage
     private final PlayerStorage playerStorage = new PlayerStorage(this);
+    private final NotificationsSettingsStorage notificationsSettingsStorage = new NotificationsSettingsStorage(this);
 
     // Configs
     private final NotificationsConfig notificationsConfig = new NotificationsConfig();
@@ -45,9 +52,15 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
 
         Bukkit.getPluginManager().registerEvents(joinListener, this);
 
+        this.getCommand("twinkies").setTabCompleter(this);
+        this.getCommand("twinkies").setExecutor(this);
+
         playerStorage.createStorageFolder();
+        notificationsSettingsStorage.createStorageFolder();
         playerStorage.createStorageFile();
+        notificationsSettingsStorage.createStorageFile();
         playerStorage.loadData();
+        notificationsSettingsStorage.loadData();
     }
 
     @NotNull
@@ -58,6 +71,10 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
     @NotNull
     public PlayerStorage getPlayerStorage() {
         return playerStorage;
+    }
+    @NotNull
+    public NotificationsSettingsStorage getNotificationsSettingsStorage() {
+        return notificationsSettingsStorage;
     }
 
     @NotNull
@@ -70,10 +87,22 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor {
     }
 
     @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args)
+    {
+        if (!(sender instanceof Player))
+            return null;
+
+        return notificationsSettingsStorage.tabComplete(sender, args);
+    }
+
+    @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args)
     {
-        playerStorage.remove(playerStorage.playerLastIp(), ((Player)sender).getUniqueId(), "last-ip");
-        playerStorage.removeCollection(playerStorage.playerNicknames(), ((Player)sender).getUniqueId(), "Wyne", "nicknames");
+        if (!(sender instanceof Player))
+            return true;
+
+        notificationsSettingsStorage.setSetting(sender, args);
+
         return false;
     }
 }

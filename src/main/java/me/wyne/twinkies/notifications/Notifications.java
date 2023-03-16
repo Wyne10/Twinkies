@@ -20,28 +20,16 @@ public class Notifications {
         Notifications.plugin = plugin;
     }
 
-    public static void sendNotification(@NotNull final Component message)
+    public static void sendNotification(@NotNull final Component message, @NotNull final NotificationType notificationType)
     {
         for (Player player : Bukkit.getOnlinePlayers())
         {
             if (!player.hasPermission("twinkies.notifications"))
                 continue;
+            if (!plugin.getNotificationsSettingsStorage().get(plugin.getNotificationsSettingsStorage().playerSettings(), player.getUniqueId()).getSetting(notificationType))
+                continue;
 
             player.sendMessage(message);
-        }
-    }
-
-    public static void sendNotification(@NotNull final Component @NotNull ... messages)
-    {
-        for (Player player : Bukkit.getOnlinePlayers())
-        {
-            if (!player.hasPermission("twinkies.notifications"))
-                return;
-
-            for (Component message : messages)
-            {
-                player.sendMessage(message);
-            }
         }
     }
 
@@ -81,7 +69,7 @@ public class Notifications {
         return playerInfo;
     }
 
-    public static void sendNotification(@NotNull final Player player, @NotNull final String stringMessage)
+    public static void sendNotification(@NotNull final Player player, @NotNull final String stringMessage, @NotNull final NotificationType notificationType)
     {
         Component message = plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, stringMessage))
                 .replaceText(
@@ -89,10 +77,10 @@ public class Notifications {
                                 .matchLiteral(player.getName())
                                 .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
                                         .hoverEvent(HoverEvent.showText(getPlayerInfo(player)))).build());
-        sendNotification(message);
+        sendNotification(message, notificationType);
     }
 
-    public static void sendNotification(@NotNull final Player player, @NotNull final OfflinePlayer dupePlayer, @NotNull final String stringMessage)
+    public static void sendNotification(@NotNull final Player player, @NotNull final OfflinePlayer dupePlayer, @NotNull final String stringMessage, @NotNull final NotificationType notificationType)
     {
         if (!dupePlayer.hasPlayedBefore())
             return;
@@ -108,6 +96,7 @@ public class Notifications {
                                 .matchLiteral("%player_dupe%")
                                 .replacement(Component.text(dupePlayer.getName()).decorate(TextDecoration.UNDERLINED)
                                         .hoverEvent(HoverEvent.showText(getPlayerInfo(dupePlayer)))).build());
-        sendNotification(message);
+        sendNotification(message, notificationType);
     }
+
 }

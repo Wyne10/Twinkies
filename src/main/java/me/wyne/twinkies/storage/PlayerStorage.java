@@ -66,9 +66,11 @@ public class PlayerStorage extends JsonStorage {
                         newPlayerIps.add(playerIpJson.getAsString());
                     }
 
-                    playerLastNickname.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-nickname").getAsString());
+                    if (playerObject.getValue().getAsJsonObject().has("last-nickname"))
+                        playerLastNickname.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-nickname").getAsString());
                     playerNicknames.put(UUID.fromString(playerObject.getKey()), newPlayerNicknames);
-                    playerLastIp.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-ip").getAsString());
+                    if (playerObject.getValue().getAsJsonObject().has("last-ip"))
+                        playerLastIp.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-ip").getAsString());
                     playerIps.put(UUID.fromString(playerObject.getKey()), newPlayerIps);
                 }
                 WLog.info("Данные из файла '" + storageFile.getName() + "' загружены");
