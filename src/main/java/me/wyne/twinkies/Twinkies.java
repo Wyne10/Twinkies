@@ -3,6 +3,7 @@ package me.wyne.twinkies;
 import me.wyne.twinkies.listeners.JoinListener;
 import me.wyne.twinkies.logging.LoggingConfig;
 import me.wyne.twinkies.notifications.Notifications;
+import me.wyne.twinkies.placeholderAPI.PlayerPlaceholders;
 import me.wyne.twinkies.storage.NotificationsSettingsStorage;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.notifications.NotificationsConfig;
@@ -35,6 +36,9 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     private final NotificationsConfig notificationsConfig = new NotificationsConfig();
     private final LoggingConfig loggingConfig = new LoggingConfig();
 
+    // Placeholders
+    private final PlayerPlaceholders playerPlaceholders = new PlayerPlaceholders(this);
+
     // Listeners
     private final JoinListener joinListener = new JoinListener(this);
 
@@ -54,6 +58,8 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
 
         this.getCommand("twinkies").setTabCompleter(this);
         this.getCommand("twinkies").setExecutor(this);
+
+        playerPlaceholders.register();
 
         playerStorage.createStorageFolder();
         notificationsSettingsStorage.createStorageFolder();
