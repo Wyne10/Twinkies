@@ -60,7 +60,7 @@ public class NotificationsSettingsStorage extends JsonStorage {
     public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
         if (!sender.hasPermission("twinkies.notifications"))
-            return null;
+            return List.of();
 
         List<String> result = new ArrayList<>();
 

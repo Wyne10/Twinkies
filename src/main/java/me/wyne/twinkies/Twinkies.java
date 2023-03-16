@@ -19,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCompleter {
@@ -91,7 +92,11 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
         if (!(sender instanceof Player))
             return null;
 
-        return notificationsSettingsStorage.tabComplete(sender, args);
+        List<String> result = new ArrayList<>();
+
+        result.addAll(notificationsSettingsStorage.tabComplete(sender, args));
+
+        return result;
     }
 
     @Override
