@@ -2,7 +2,6 @@ package me.wyne.twinkies.placeholderAPI;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.wyne.twinkies.Twinkies;
-import me.wyne.twinkies.wlog.WLog;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
