@@ -46,6 +46,8 @@ public interface Storage {
 
     /**
      * Save element to data {@link HashMap} and to storageFile to given path.
+     * Set path as null to save value directly to key in storageFile.
+     * Set data as null to save value only to storageFile.
      * @param data {@link HashMap} to save element to
      * @param key {@link HashMap} key to save element to
      * @param value Value to save
@@ -53,10 +55,9 @@ public interface Storage {
      * @param <KeyType> Data {@link HashMap} key type
      * @param <ValType> Data {@link HashMap} value type
      */
-    <KeyType, ValType> void save(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final ValType value, final String path);
+    <KeyType, ValType> void save(@Nullable HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final ValType value, @Nullable final String path);
     /**
      * Save element to {@link Collection} in data {@link HashMap} and to storageFile to given path.
-     * Set path as null to save whole key to storageFile.
      * @param data {@link HashMap} to save {@link Collection} to
      * @param key {@link HashMap} key to {@link Collection} to save element to
      * @param value Value to save
@@ -70,6 +71,8 @@ public interface Storage {
 
     /**
      * Remove element from data {@link HashMap} and from storageFile from given path.
+     * Set path as null to remove whole key from storageFile.
+     * Set data as null to remove value only from storageFile.
      * @param data {@link HashMap} to remove element from
      * @param key {@link HashMap} key to remove element from
      * @param path Path in storageFile to remove element from
@@ -77,11 +80,10 @@ public interface Storage {
      * @param <KeyType> Data {@link HashMap} key type
      * @param <ValType> Data {@link HashMap} value type
      */
-    <KeyType, ValType> boolean remove(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, final String path);
+    <KeyType, ValType> boolean remove(@Nullable HashMap<KeyType, ValType> data, @NotNull final KeyType key, @Nullable final String path);
 
     /**
      * Remove element from {@link Collection} in data {@link HashMap} and from storageFile from given path.
-     * Set path as null to remove whole key from storageFile.
      * @param data {@link HashMap} to remove {@link Collection} element from
      * @param key {@link HashMap} key to {@link Collection} to remove element from
      * @param value Value to remove

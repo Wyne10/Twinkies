@@ -9,45 +9,60 @@ import java.lang.reflect.Field;
 
 public class NotificationsSettings {
 
-    @Setting(reference = "register", toggleMessage = "о регистрации")
+    @Setting(toggleMessage = "о регистрации")
     private boolean sendRegister = true;
-    @Setting(reference = "join", toggleMessage = "о присоединении")
+    @Setting(toggleMessage = "о присоединении")
     private boolean sendJoin = true;
-    @Setting(reference = "changeNick", toggleMessage = "о смене ника")
+    @Setting(toggleMessage = "о смене ника")
     private boolean sendChangeNick = true;
-    @Setting(reference = "newNick", toggleMessage = "о новом нике")
+    @Setting(toggleMessage = "о новом нике")
     private boolean sendNewNick = true;
-    @Setting(reference = "dupeNick", toggleMessage = "о дублирующемся нике")
+    @Setting(toggleMessage = "о дублирующемся нике")
     private boolean sendDupeNick = true;
-    @Setting(reference = "changeIp", toggleMessage = "о смене IP")
+    @Setting(toggleMessage = "о смене IP")
     private boolean sendChangeIp = true;
-    @Setting(reference = "newIp", toggleMessage = "о новом IP")
+    @Setting(toggleMessage = "о новом IP")
     private boolean sendNewIp = true;
-    @Setting(reference = "dupeIp", toggleMessage = "о дублирующемся IP")
+    @Setting(toggleMessage = "о дублирующемся IP")
     private boolean sendDupeIp = true;
 
-    public boolean getSetting(NotificationType notificationType)
+    public boolean getSetting(@NotNull final NotificationType notificationType)
     {
         for (Field field : getClass().getDeclaredFields())
         {
-            if (field.getAnnotation(Setting.class).reference().equalsIgnoreCase(notificationType.getSettingReference()))
+            if (field.getName().equalsIgnoreCase(notificationType.getSettingFieldName()))
             {
                 try {
                     return field.getBoolean(this);
                 } catch (IllegalAccessException e) {
-                    WLog.error("Произошла ошибка при попытке получить настройку '" + notificationType.getSettingReference());
+                    WLog.error("Произошла ошибка при попытке получить настройку '" + notificationType.getSettingFieldName() + "'");
                 }
             }
         }
         return false;
     }
 
-    public Component toggleSetting(@NotNull final String settingReference) throws IllegalAccessException {
+    public boolean getSetting(@NotNull final String settingFieldName)
+    {
+        for (Field field : getClass().getDeclaredFields())
+        {
+            if (field.getName().equalsIgnoreCase(settingFieldName))
+            {
+                try {
+                    return field.getBoolean(this);
+                } catch (IllegalAccessException e) {
+                    WLog.error("Произошла ошибка при попытке получить настройку '" + settingFieldName + "'");
+                }
+            }
+        }
+        return false;
+    }
+
+    public Component toggleSetting(@NotNull final String settingFieldName) throws IllegalAccessException {
         for(Field field : getClass().getDeclaredFields())
         {
-            String reference = field.getAnnotation(Setting.class).reference();
             String toggleMessage = field.getAnnotation(Setting.class).toggleMessage();
-            if (reference.equalsIgnoreCase(settingReference))
+            if (field.getName().equalsIgnoreCase(settingFieldName))
             {
                 field.setAccessible(true);
                 field.set(this, !field.getBoolean(this));

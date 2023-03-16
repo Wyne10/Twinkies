@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.wyne.twinkies.Twinkies;
+import me.wyne.twinkies.notifications.NotificationType;
 import me.wyne.twinkies.notifications.NotificationsSettings;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.wstorage.JsonStorage;
@@ -68,14 +69,10 @@ public class NotificationsSettingsStorage extends JsonStorage {
 
         if (args.length == 2)
         {
-            result.add("register");
-            result.add("join");
-            result.add("changeNick");
-            result.add("newNick");
-            result.add("dupeNick");
-            result.add("changeIp");
-            result.add("newIp");
-            result.add("dupeIp");
+            for (NotificationType notificationType : NotificationType.values())
+            {
+                result.add(notificationType.getSettingFieldName());
+            }
         }
 
         return result;
@@ -89,13 +86,15 @@ public class NotificationsSettingsStorage extends JsonStorage {
             return;
         if (!args[0].equalsIgnoreCase("notif"))
             return;
+        if (!NotificationType.contains(args[1]))
+            return;
 
         try {
             sender.sendMessage(playerSettings.get(((Player)sender).getUniqueId()).toggleSetting(args[1]));
         } catch (IllegalAccessException e) {
             WLog.error("Произошла ошибка при попытке переключить настройку '" + args[1] + "' игрока '" + sender.getName() + "'");
         }
-        save(playerSettings, ((Player)sender).getUniqueId(), playerSettings.get(((Player)sender).getUniqueId()), null);
+        save(null, ((Player)sender).getUniqueId(), playerSettings.get(((Player)sender).getUniqueId()).getSetting(args[1]), args[1]);
     }
 
 }

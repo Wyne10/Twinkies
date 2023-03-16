@@ -4,22 +4,34 @@ import org.jetbrains.annotations.NotNull;
 
 public enum NotificationType {
 
-    REGISTER("register"),
-    JOIN("join"),
-    CHANGE_NICK("changeNick"),
-    NEW_NICK("newNick"),
-    DUPE_NICK("dupeNick"),
-    CHANGE_IP("changeIp"),
-    NEW_IP("newIp"),
-    DUPE_IP("dupeIp");
+    REGISTER("sendRegister"),
+    JOIN("sendJoin"),
+    CHANGE_NICK("sendChangeNick"),
+    NEW_NICK("sendNewNick"),
+    DUPE_NICK("sendDupeNick"),
+    CHANGE_IP("sendChangeIp"),
+    NEW_IP("sendNewIp"),
+    DUPE_IP("sendDupeIp");
 
-    private String settingReference;
+    private String settingFieldName;
     NotificationType(@NotNull final String settingReference)
     {
-        this.settingReference = settingReference;
+        this.settingFieldName = settingReference;
     }
 
-    public String getSettingReference() {
-        return settingReference;
+    public String getSettingFieldName() {
+        return settingFieldName;
+    }
+    public static boolean contains(@NotNull final String settingFieldName)
+    {
+        for (NotificationType notificationType : values())
+        {
+            if (notificationType.getSettingFieldName().equalsIgnoreCase(settingFieldName))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

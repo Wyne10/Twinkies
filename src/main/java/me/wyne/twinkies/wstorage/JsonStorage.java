@@ -91,9 +91,10 @@ public abstract class JsonStorage implements Storage {
         return data.get(key);
     }
 
-    public <KeyType, ValType> void save(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final ValType value, final String path)
+    public <KeyType, ValType> void save(@Nullable HashMap<KeyType, ValType> data, @NotNull final KeyType key, @NotNull final ValType value, final String path)
     {
-        data.put(key, value);
+        if (data != null)
+            data.put(key, value);
 
         executorService.execute(() -> {
             try
@@ -175,16 +176,20 @@ public abstract class JsonStorage implements Storage {
         return true;
     }
 
-    public <KeyType, ValType> boolean remove(@NotNull HashMap<KeyType, ValType> data, @NotNull final KeyType key, final String path)
+    public <KeyType, ValType> boolean remove(@Nullable HashMap<KeyType, ValType> data, @NotNull final KeyType key, final String path)
     {
-        if (!data.containsKey(key))
+        if (data != null)
         {
-            WLog.warn("Значение ключа '" + key + "' не найдено");
-            WLog.warn("Путь: " + path);
-            return false;
+            if (!data.containsKey(key))
+            {
+                WLog.warn("Значение ключа '" + key + "' не найдено");
+                WLog.warn("Путь: " + path);
+                return false;
+            }
+
+            data.remove(key);
         }
 
-        data.remove(key);
         executorService.execute(() -> {
             try {
                 JsonObject datas = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
