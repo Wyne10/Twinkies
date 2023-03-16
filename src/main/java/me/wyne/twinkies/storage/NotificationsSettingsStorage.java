@@ -89,11 +89,7 @@ public class NotificationsSettingsStorage extends JsonStorage {
         if (!NotificationType.contains(args[1]))
             return;
 
-        try {
-            sender.sendMessage(playerSettings.get(((Player)sender).getUniqueId()).toggleSetting(args[1]));
-        } catch (IllegalAccessException e) {
-            WLog.error("Произошла ошибка при попытке переключить настройку '" + args[1] + "' игрока '" + sender.getName() + "'");
-        }
+        sender.sendMessage(playerSettings.get(((Player)sender).getUniqueId()).toggleSetting(args[1]));
         save(null, ((Player)sender).getUniqueId(), playerSettings.get(((Player)sender).getUniqueId()).getSetting(args[1]), args[1]);
     }
 
