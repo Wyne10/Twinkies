@@ -8,6 +8,8 @@ import me.wyne.twinkies.notifications.NotificationType;
 import me.wyne.twinkies.notifications.NotificationsSettings;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.wstorage.JsonStorage;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -89,8 +91,15 @@ public class NotificationsSettingsStorage extends JsonStorage {
         if (!NotificationType.contains(args[1]))
             return;
 
-        sender.sendMessage(playerSettings.get(((Player)sender).getUniqueId()).toggleSetting(args[1]));
-        save(null, ((Player)sender).getUniqueId(), playerSettings.get(((Player)sender).getUniqueId()).getSetting(args[1]), args[1]);
+        NotificationsSettings settings = playerSettings.get(((Player)sender).getUniqueId());
+        Component setMessage = settings.setSetting(args[1], !settings.<Boolean>getSetting(args[1]));
+
+        if (settings.<Boolean>getSetting(args[1]))
+            sender.sendMessage(setMessage.append(Component.text(" включены.").color(NamedTextColor.GREEN)));
+        else
+            sender.sendMessage(setMessage.append(Component.text(" отключены.").color(NamedTextColor.RED)));
+
+        save(null, ((Player)sender).getUniqueId(), settings.<Boolean>getSetting(args[1]), args[1]);
     }
 
 }

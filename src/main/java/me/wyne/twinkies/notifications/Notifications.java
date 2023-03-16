@@ -26,7 +26,7 @@ public class Notifications {
         {
             if (!player.hasPermission("twinkies.notifications"))
                 continue;
-            if (!plugin.getNotificationsSettingsStorage().get(plugin.getNotificationsSettingsStorage().playerSettings(), player.getUniqueId()).getSetting(notificationType))
+            if (!plugin.getNotificationsSettingsStorage().get(plugin.getNotificationsSettingsStorage().playerSettings(), player.getUniqueId()).<Boolean>getSetting(notificationType.getSettingFieldName()))
                 continue;
 
             player.sendMessage(message);
