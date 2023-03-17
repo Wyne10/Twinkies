@@ -58,10 +58,9 @@ public class Notifications {
             int i = 0;
             for (String ip : plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerIps(), player.getUniqueId()))
             {
+                playerInfo = playerInfo.append(Component.text(ip));
                 if (i != plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerIps(), player.getUniqueId()).size() - 1)
-                    playerInfo = playerInfo.append(Component.text(ip)).appendNewline();
-                else
-                    playerInfo = playerInfo.append(Component.text(ip));
+                    playerInfo = playerInfo.appendNewline();
                 i++;
             }
         }

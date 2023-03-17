@@ -115,6 +115,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
 
         result.addAll(loggingTabComplete(sender, args));
         result.addAll(notificationsSettingsStorage.tabComplete(sender, args));
+        result.addAll(playerStorage.tabComplete(sender, args));
 
         return result;
     }
@@ -122,6 +123,8 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args)
     {
+        playerStorage.showDataManager(sender, args);
+
         if (!(sender instanceof Player))
             return true;
 

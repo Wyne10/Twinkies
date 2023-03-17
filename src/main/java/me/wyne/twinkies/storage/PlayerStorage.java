@@ -4,7 +4,14 @@ import com.google.gson.*;
 import me.wyne.twinkies.Twinkies;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.wstorage.JsonStorage;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -79,5 +86,129 @@ public class PlayerStorage extends JsonStorage {
                 WLog.error(e.getMessage());
             }
         });
+    }
+
+    public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return List.of();
+
+        List<String> result = new ArrayList<>();
+
+        if (args.length == 1)
+        {
+            result.add("data");
+        }
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("data"))
+        {
+            for (OfflinePlayer player : Bukkit.getOfflinePlayers())
+            {
+                if (args[1].isBlank())
+                    result.add(player.getName());
+                else
+                {
+                    if (player.getName().toLowerCase().startsWith(args[1].toLowerCase()))
+                        result.add(player.getName());
+                }
+            }
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("data"))
+        {
+            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore())
+            {
+                if (playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
+                    result.addAll(playerNicknames.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
+
+                if (playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
+                    result.addAll(playerIps.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
+            }
+        }
+
+        if (args.length == 4 && args[0].equalsIgnoreCase("data"))
+        {
+            result.add("find");
+            result.add("delete");
+        }
+
+        return result;
+    }
+
+    public void showDataManager(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return;
+        if (args.length != 2)
+            return;
+        if (!args[0].equalsIgnoreCase("data"))
+            return;
+        if (!Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore())
+        {
+            sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
+            WLog.error("Произошла ошибка при попытке получить данные о игроке '" + args[1] + "'");
+            WLog.error("Игрок: '" + sender.getName() + "'");
+            return;
+        }
+
+        OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
+
+        Component playerInfo = Component.text("Информация о игроке '")
+                .append(Component.text(player.getName()))
+                .append(Component.text("'"))
+                .appendNewline()
+                .append(Component.text("Никнеймы:"))
+                .color(NamedTextColor.BLUE)
+                .appendNewline();
+
+        if (playerNicknames.containsKey(player.getUniqueId()))
+        {
+            for (String nickname : playerNicknames.get(player.getUniqueId()))
+            {
+                playerInfo = playerInfoAppend(playerInfo, args[1], nickname, "никнейм");
+                playerInfo = playerInfo.appendNewline();
+            }
+        }
+
+        playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).color(NamedTextColor.BLUE).appendNewline();
+
+        if (playerIps.containsKey(player.getUniqueId()))
+        {
+            for (String ip : playerIps.get(player.getUniqueId()))
+            {
+                playerInfo = playerInfoAppend(playerInfo, args[1], ip, "IP адрес");
+                playerInfo = playerInfo.appendNewline();
+            }
+        }
+
+        playerInfo = playerInfo.appendNewline();
+
+        if (playerLastNickname.containsKey(player.getUniqueId()))
+        {
+            playerInfo = playerInfo.append(Component.text("Последний никнейм: ").color(NamedTextColor.BLUE)).appendSpace();
+            playerInfo = playerInfoAppend(playerInfo, args[1], playerLastNickname.get(player.getUniqueId()), "никнейм");
+            playerInfo = playerInfo.appendNewline();
+        }
+
+        if (playerLastIp.containsKey(player.getUniqueId()))
+        {
+            playerInfo = playerInfo.append(Component.text("Последний IP адрес: ").color(NamedTextColor.BLUE)).appendSpace();
+            playerInfo = playerInfoAppend(playerInfo, args[1], playerLastIp.get(player.getUniqueId()), "IP адрес");
+        }
+
+        sender.sendMessage(playerInfo);
+    }
+
+    private Component playerInfoAppend(@NotNull final Component playerInfo, @NotNull final String playerNick, @NotNull final String append, @NotNull final String hoverEnd)
+    {
+        return playerInfo.append(Component.text(append).color(NamedTextColor.WHITE))
+                .appendSpace()
+                .append(Component.text("[✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
+                        .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому " + hoverEnd + "у").color(NamedTextColor.GREEN)))
+                        .clickEvent(ClickEvent.suggestCommand("/twinkies data " + playerNick + " " + append + " find")))
+                .appendSpace()
+                .append(Component.text("[✖]").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
+                        .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы удалить этот " + hoverEnd).color(NamedTextColor.RED)))
+                        .clickEvent(ClickEvent.suggestCommand("/twinkies data " + playerNick + " " + append + " delete")));
     }
 }
