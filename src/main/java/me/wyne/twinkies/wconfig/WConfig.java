@@ -10,18 +10,18 @@ import java.util.Set;
 
 public class WConfig {
 
-    private static final Set<Object> registeredObjects = new HashSet<>();
+    private static final Set<Object> registeredConfigClasses = new HashSet<>();
 
-    public static void registerClass(@NotNull final Object object)
+    public static void registerConfigClass(@NotNull final Object object)
     {
-        registeredObjects.add(object);
+        registeredConfigClasses.add(object);
     }
 
-    public static void reloadFields(@NotNull final FileConfiguration config) {
+    public static void reloadConfigClasses(@NotNull final FileConfiguration config) {
         try
         {
             WLog.info("Перезагрузка конфига...");
-            for (Object object : registeredObjects)
+            for (Object object : registeredConfigClasses)
             {
                 for(Field field  : object.getClass().getDeclaredFields())
                 {

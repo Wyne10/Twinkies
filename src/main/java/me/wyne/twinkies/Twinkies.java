@@ -20,8 +20,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCompleter {
 
@@ -45,14 +47,20 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
+
+        // Initialize logger
         WLog.registerLogger(getLogger());
         WLog.registerConfig(loggingConfig);
+        WLog.registerLogDirectory(new File(getDataFolder(), "logs"));
+        WLog.registerWriteThread(Executors.newSingleThreadExecutor());
 
+        // Initialize notifications
         Notifications.registerPlugin(this);
 
-        WConfig.registerClass(notificationsConfig);
-        WConfig.registerClass(loggingConfig);
-        WConfig.reloadFields(getConfig());
+        // Initialize configs
+        WConfig.registerConfigClass(notificationsConfig);
+        WConfig.registerConfigClass(loggingConfig);
+        WConfig.reloadConfigClasses(getConfig());
 
         Bukkit.getPluginManager().registerEvents(joinListener, this);
 

@@ -5,6 +5,7 @@ import me.wyne.twinkies.logging.LoggingConfig;
 import me.wyne.twinkies.notifications.NotificationType;
 import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.storage.PlayerStorage;
+import me.wyne.twinkies.wlog.LogMessage;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.notifications.Notifications;
 import org.bukkit.Bukkit;
@@ -43,7 +44,7 @@ public class JoinListener implements Listener {
 
         if (!p.hasPlayedBefore())
         {
-            WLog.log(p, notifConfig.getRegister(), logConfig.logRegister());
+            WLog.log(LogMessage.builder(notifConfig.getRegister()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logRegister());
             Notifications.sendNotification(p, notifConfig.getRegister(), NotificationType.REGISTER);
         }
 
@@ -57,14 +58,14 @@ public class JoinListener implements Listener {
         }
         else
         {
-            WLog.log(p, notifConfig.getJoin(), logConfig.logJoin());
+            WLog.log(LogMessage.builder(notifConfig.getJoin()).stripTags().setPlaceholders(p).build(), logConfig.logJoin());
             Notifications.sendNotification(p, notifConfig.getJoin(), NotificationType.JOIN);
         }
 
         // Handle new nick of player
         if (!storage.getCollection(storage.playerNicknames(), uuid).contains(p.getName()))
         {
-            WLog.log(p, notifConfig.getNewNick(), logConfig.logNewNick());
+            WLog.log(LogMessage.builder(notifConfig.getNewNick()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logNewNick());
             Notifications.sendNotification(p, notifConfig.getNewNick(), NotificationType.NEW_NICK);
             storage.save(storage.playerLastNickname(), uuid, p.getName(), "last-nickname");
             storage.saveCollection(storage.playerNicknames(), uuid, p.getName(), "nicknames");
@@ -74,7 +75,7 @@ public class JoinListener implements Listener {
             // Handle nick change of player
             if (!storage.get(storage.playerLastNickname(), uuid).equals(p.getName()))
             {
-                WLog.log(p, notifConfig.getChangeNick(), logConfig.logChangeNick());
+                WLog.log(LogMessage.builder(notifConfig.getChangeNick()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logChangeNick());
                 Notifications.sendNotification(p, notifConfig.getChangeNick(), NotificationType.CHANGE_NICK);
             }
         }
@@ -82,7 +83,7 @@ public class JoinListener implements Listener {
         // Handle new IP of player
         if (!storage.getCollection(storage.playerIps(), uuid).contains(ip))
         {
-            WLog.log(p, notifConfig.getNewIp(), logConfig.logNewIp());
+            WLog.log(LogMessage.builder(notifConfig.getNewIp()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logNewIp());
             Notifications.sendNotification(p, notifConfig.getNewIp(), NotificationType.NEW_IP);
             storage.save(storage.playerLastIp(), uuid, ip, "last-ip");
             storage.saveCollection(storage.playerIps(), uuid, ip, "ips");
@@ -92,7 +93,7 @@ public class JoinListener implements Listener {
             // Handle IP change of player
             if (!storage.get(storage.playerLastIp(), uuid).equals(ip))
             {
-                WLog.log(p, notifConfig.getChangeIp(), logConfig.logChangeIp());
+                WLog.log(LogMessage.builder(notifConfig.getChangeIp()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logChangeIp());
                 Notifications.sendNotification(p, notifConfig.getChangeIp(), NotificationType.CHANGE_IP);
             }
         }
@@ -105,14 +106,14 @@ public class JoinListener implements Listener {
             // Handle dupe nick of player
             if (storage.getCollection(storage.playerNicknames(), player.getUniqueId()) != null && storage.getCollection(storage.playerNicknames(), player.getUniqueId()).contains(p.getName()))
             {
-                WLog.log(p, player, notifConfig.getDupeNick(), logConfig.logDupeNick());
+                WLog.log(LogMessage.builder(notifConfig.getDupeNick()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", player.getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeNick());
                 Notifications.sendNotification(p, player, notifConfig.getDupeNick(), NotificationType.DUPE_NICK);
             }
 
             // Handle dupe IP of player
             if (storage.getCollection(storage.playerIps(), player.getUniqueId()) != null && storage.getCollection(storage.playerIps(), player.getUniqueId()).contains(ip))
             {
-                WLog.log(p, player, notifConfig.getDupeIp(), logConfig.logDupeIp());
+                WLog.log(LogMessage.builder(notifConfig.getDupeIp()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", player.getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeIp());
                 Notifications.sendNotification(p, player, notifConfig.getDupeIp(), NotificationType.DUPE_IP);
             }
         }
