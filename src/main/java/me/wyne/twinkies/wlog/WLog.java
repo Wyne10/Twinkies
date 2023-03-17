@@ -21,28 +21,44 @@ public class WLog {
     private static File directory = null;
 
     /**
-     * @return Is logger registered and ready to log?
+     * @return Are logger and config registered?
      */
     public static boolean isActive()
     {
         return logger != null && config != null;
     }
 
+    /**
+     * Register {@link Logger} to log all messages.
+     * @param logger Logger to register
+     */
     public static void registerLogger(@NotNull final Logger logger)
     {
         WLog.logger = logger;
     }
 
+    /**
+     * Register {@link WLogConfig} to control {@link #info(String)}, {@link #warn(String)} and {@link #error(String)} logging.
+     * @param config Config to register
+     */
     public static void registerConfig(@NotNull final WLogConfig config)
     {
         WLog.config = config;
     }
 
+    /**
+     * Register directory to save log files to.
+     * @param directory Directory to register
+     */
     public static void registerLogDirectory(@NotNull final File directory)
     {
         WLog.directory = directory;
     }
 
+    /**
+     * Register {@link ExecutorService} that will write logs to {@link #directory}.
+     * @param executorService Thread to register
+     */
     public static void registerWriteThread(@NotNull final ExecutorService executorService)
     {
         WLog.executorService = executorService;
@@ -75,6 +91,11 @@ public class WLog {
         }
     }
 
+    /**
+     * Log {@link LogMessage}.
+     * @param logMessage {@link LogMessage} to log
+     * @param doLog Log or don't log. Useful when using some logging config
+     */
     public static void log(@NotNull final LogMessage logMessage, final boolean doLog)
     {
         if (isActive() && doLog)
@@ -84,6 +105,12 @@ public class WLog {
         }
     }
 
+    /**
+     * Log {@link LogMessage} and split {@link LogMessage} by regex.
+     * @param logMessage {@link LogMessage} to log
+     * @param splitRegex Regex to split {@link LogMessage} by
+     * @param doLog Log or don't log. Useful when using some logging config
+     */
     public static void log(@NotNull final LogMessage logMessage, @NotNull final String splitRegex, final boolean doLog)
     {
         if (isActive() && doLog)
@@ -96,6 +123,11 @@ public class WLog {
         }
     }
 
+    /**
+     * Write log to {@link #directory}.
+     * @param level Log {@link Level}
+     * @param log Message to log
+     */
     private static void writeLog(@NotNull final Level level, @NotNull final String log)
     {
         if (directory == null || executorService == null)

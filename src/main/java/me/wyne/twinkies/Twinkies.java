@@ -58,9 +58,9 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
         Notifications.registerPlugin(this);
 
         // Initialize configs
-        WConfig.registerConfigClass(notificationsConfig);
-        WConfig.registerConfigClass(loggingConfig);
-        WConfig.reloadConfigClasses(getConfig());
+        WConfig.registerConfigObject(notificationsConfig);
+        WConfig.registerConfigObject(loggingConfig);
+        WConfig.reloadConfigObjects(getConfig());
 
         Bukkit.getPluginManager().registerEvents(joinListener, this);
 

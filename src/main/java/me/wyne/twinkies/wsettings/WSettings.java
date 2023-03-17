@@ -3,11 +3,19 @@ package me.wyne.twinkies.wsettings;
 import me.wyne.twinkies.wlog.WLog;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
 public abstract class WSettings {
 
+    /**
+     * Get {@link Setting} value from inheritor by {@link Setting} field name or by {@link SettingReference}.
+     * @param setting {@link Setting} field name of {@link SettingReference}
+     * @return {@link Setting} value
+     * @param <SettingType> {@link Setting} value type
+     */
+    @Nullable
     public <SettingType> SettingType getSetting(@NotNull final String setting) {
         for (Field field : getClass().getDeclaredFields())
         {
@@ -43,6 +51,13 @@ public abstract class WSettings {
         return null;
     }
 
+    /**
+     * Get {@link Setting} from inheritor by {@link Setting} field name or by {@link SettingReference} and then set new value.
+     * @param setting {@link Setting} field name of {@link SettingReference}
+     * @param newValue New {@link Setting} value
+     * @return {@link Setting} setMessage as component
+     */
+    @NotNull
     public Component setSetting(@NotNull final String setting, @NotNull final Object newValue) {
         for (Field field : getClass().getDeclaredFields())
         {

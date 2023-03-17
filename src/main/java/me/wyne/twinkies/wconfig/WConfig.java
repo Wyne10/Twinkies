@@ -10,18 +10,26 @@ import java.util.Set;
 
 public class WConfig {
 
-    private static final Set<Object> registeredConfigClasses = new HashSet<>();
+    private static final Set<Object> registeredConfigObjects = new HashSet<>();
 
-    public static void registerConfigClass(@NotNull final Object object)
+    /**
+     * Registered objects will be reloaded on {@link #reloadConfigObjects(FileConfiguration)}.
+     * @param object Object to register
+     */
+    public static void registerConfigObject(@NotNull final Object object)
     {
-        registeredConfigClasses.add(object);
+        registeredConfigObjects.add(object);
     }
 
-    public static void reloadConfigClasses(@NotNull final FileConfiguration config) {
+    /**
+     * Load data from {@link FileConfiguration} to registered objects.
+     * @param config Config to load data from
+     */
+    public static void reloadConfigObjects(@NotNull final FileConfiguration config) {
         try
         {
             WLog.info("Перезагрузка конфига...");
-            for (Object object : registeredConfigClasses)
+            for (Object object : registeredConfigObjects)
             {
                 for(Field field  : object.getClass().getDeclaredFields())
                 {
