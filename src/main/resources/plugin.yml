@@ -12,3 +12,7 @@ permissions:
     default: op
   twinkies.notifications:
     description: Allows player to receive notifications
+  twinkies.playerData:
+    description: Allows player to read and modify saved player data
+  twinkies.logging:
+    description: Allows player to set logging settings

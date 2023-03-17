@@ -56,7 +56,6 @@ public class NotificationsSettingsStorage extends JsonStorage {
         }
     }
 
-    @Nullable
     public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
         if (!sender.hasPermission("twinkies.notifications"))
@@ -69,11 +68,17 @@ public class NotificationsSettingsStorage extends JsonStorage {
             result.add("notif");
         }
 
-        if (args.length == 2)
+        if (args.length == 2 && args[0].equalsIgnoreCase("notif"))
         {
             for (NotificationType notificationType : NotificationType.values())
             {
-                result.add(notificationType.getSettingFieldName());
+                if (args[1].isBlank())
+                    result.add(notificationType.getSettingFieldName());
+                else
+                {
+                    if (notificationType.getSettingFieldName().toLowerCase().contains(args[1].toLowerCase()))
+                        result.add(notificationType.getSettingFieldName());
+                }
             }
         }
 
