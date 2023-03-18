@@ -123,12 +123,12 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
         playerStorage.showDataManager(sender, args);
         playerStorage.searchTwinks(sender, args);
         playerStorage.deleteData(sender, args);
+        loggingConfig.setLoggingSetting(sender, args);
 
         if (!(sender instanceof Player))
             return true;
 
         notificationsSettingsStorage.setSetting(sender, args);
-        loggingConfig.setLoggingSetting(sender, args);
 
         return false;
     }

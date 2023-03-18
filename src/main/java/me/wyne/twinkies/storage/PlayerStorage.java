@@ -239,7 +239,7 @@ public class PlayerStorage extends JsonStorage {
         if (!playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()) && !playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
         {
             sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
-            WLog.error("Произошла ошибка при попытке получить твинки игрока '" + args[1] + "'");
+            WLog.error("Произошла ошибка при попытке поиска твинков игрока '" + args[1] + "'");
             WLog.error("Игрок '" + args[1] + "' не найден");
             if (sender instanceof Player)
                 WLog.error("Исполнитель запроса: '" + sender.getName() + "'");
@@ -337,7 +337,7 @@ public class PlayerStorage extends JsonStorage {
             else
             {
                 sender.sendMessage(Component.text("Значение '").append(Component.text(args[2])).append(Component.text("' игрока '")).append(Component.text(args[1])).append(Component.text("' не найдено!")).color(NamedTextColor.RED));
-                WLog.error("Произошла ошибка при попытке получить твинки игрока '" + args[1] + "'");
+                WLog.error("Произошла ошибка при попытке поиска твинков игрока '" + args[1] + "'");
                 WLog.error("Значение '" + args[2] + "' не найдено");
                 if (sender instanceof Player)
                     WLog.error("Исполнитель запроса: '" + sender.getName() + "'");

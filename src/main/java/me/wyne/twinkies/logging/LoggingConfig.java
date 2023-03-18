@@ -2,12 +2,15 @@ package me.wyne.twinkies.logging;
 
 import me.wyne.twinkies.wconfig.ConfigField;
 import me.wyne.twinkies.wconfig.WConfig;
+import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.wlog.WLogConfig;
 import me.wyne.twinkies.wsettings.Setting;
 import me.wyne.twinkies.wsettings.WSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -138,8 +141,21 @@ public class LoggingConfig extends WConfig implements WLogConfig {
         Component setMessage = WSettings.setSetting(this, args[1], !WSettings.<Boolean>getSetting(this, args[1]));
 
         if (WSettings.<Boolean>getSetting(this, args[1]))
+        {
             sender.sendMessage(setMessage.append(Component.text(" включено.").color(NamedTextColor.GREEN)));
+            if (sender instanceof Player)
+                WLog.info("Игрок '" + sender.getName() + "' включил " + PlainTextComponentSerializer.plainText().serialize(setMessage).toLowerCase());
+            else
+                WLog.info("Консоль включила " + PlainTextComponentSerializer.plainText().serialize(setMessage).toLowerCase());
+        }
+
         else
+        {
             sender.sendMessage(setMessage.append(Component.text(" отключено.").color(NamedTextColor.RED)));
+            if (sender instanceof Player)
+                WLog.info("Игрок '" + sender.getName() + "' отключил " + PlainTextComponentSerializer.plainText().serialize(setMessage).toLowerCase());
+            else
+                WLog.info("Консоль отключила " + PlainTextComponentSerializer.plainText().serialize(setMessage).toLowerCase());
+        }
     }
 }
