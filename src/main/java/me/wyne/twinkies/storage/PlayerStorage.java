@@ -5,6 +5,7 @@ import me.wyne.twinkies.Twinkies;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.wstorage.JsonStorage;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Function;
 
 public class PlayerStorage extends JsonStorage {
 
@@ -90,6 +92,49 @@ public class PlayerStorage extends JsonStorage {
     }
 
     @NotNull
+    public Component getPlayerInfo(@NotNull final OfflinePlayer player, @NotNull final Function<String, Component> appendNick, @NotNull final Function<String, Component> appendIp)
+    {
+        Component playerInfo = Component.text("Информация о игроке '")
+                .append(Component.text(player.getName()))
+                .append(Component.text("'"))
+                .appendNewline()
+                .append(Component.text("Никнеймы:"))
+                .color(NamedTextColor.BLUE)
+                .appendNewline();
+
+        for (String nickname : getCollection(playerNicknames, player.getUniqueId()))
+        {
+            playerInfo = playerInfo.append(Component.text(nickname).color(NamedTextColor.WHITE)).append(appendNick.apply(nickname));
+            playerInfo = playerInfo.appendNewline();
+        }
+
+        playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).color(NamedTextColor.BLUE).appendNewline();
+
+        for (String ip : getCollection(playerIps, player.getUniqueId()))
+        {
+            playerInfo = playerInfo.append(Component.text(ip).color(NamedTextColor.WHITE)).append(appendIp.apply(ip));
+            playerInfo = playerInfo.appendNewline();
+        }
+
+        playerInfo = playerInfo.appendNewline();
+
+        if (playerLastNickname.containsKey(player.getUniqueId()))
+        {
+            playerInfo = playerInfo.append(Component.text("Последний никнейм: ")).color(NamedTextColor.BLUE);
+            playerInfo = playerInfo.append(Component.text(playerLastNickname.get(player.getUniqueId())).color(NamedTextColor.WHITE)).append(appendNick.apply(playerLastNickname.get(player.getUniqueId())));
+            playerInfo = playerInfo.appendNewline();
+        }
+
+        if (playerLastIp.containsKey(player.getUniqueId()))
+        {
+            playerInfo = playerInfo.append(Component.text("Последний IP адрес: ").color(NamedTextColor.BLUE));
+            playerInfo = playerInfo.append(Component.text(playerLastIp.get(player.getUniqueId())).color(NamedTextColor.WHITE)).append(appendIp.apply(playerLastIp.get(player.getUniqueId())));
+        }
+
+        return playerInfo;
+    }
+
+    @NotNull
     public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
         if (!sender.hasPermission("twinkies.playerData"))
@@ -120,11 +165,8 @@ public class PlayerStorage extends JsonStorage {
         {
             if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore())
             {
-                if (playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
-                    result.addAll(playerNicknames.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
-
-                if (playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
-                    result.addAll(playerIps.get(Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
+                result.addAll(getCollection(playerNicknames, Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
+                result.addAll(getCollection(playerIps, Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
             }
         }
 
@@ -159,62 +201,22 @@ public class PlayerStorage extends JsonStorage {
 
         OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
 
-        Component playerInfo = Component.text("Информация о игроке '")
-                .append(Component.text(player.getName()))
-                .append(Component.text("'"))
-                .appendNewline()
-                .append(Component.text("Никнеймы:"))
-                .color(NamedTextColor.BLUE)
-                .appendNewline();
-
-        if (playerNicknames.containsKey(player.getUniqueId()))
-        {
-            for (String nickname : playerNicknames.get(player.getUniqueId()))
-            {
-                playerInfo = playerInfoAppend(playerInfo, args[1], nickname, "никнейм");
-                playerInfo = playerInfo.appendNewline();
-            }
-        }
-
-        playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).color(NamedTextColor.BLUE).appendNewline();
-
-        if (playerIps.containsKey(player.getUniqueId()))
-        {
-            for (String ip : playerIps.get(player.getUniqueId()))
-            {
-                playerInfo = playerInfoAppend(playerInfo, args[1], ip, "IP адрес");
-                playerInfo = playerInfo.appendNewline();
-            }
-        }
-
-        playerInfo = playerInfo.appendNewline();
-
-        if (playerLastNickname.containsKey(player.getUniqueId()))
-        {
-            playerInfo = playerInfo.append(Component.text("Последний никнейм: ").color(NamedTextColor.BLUE));
-            playerInfo = playerInfoAppend(playerInfo, args[1], playerLastNickname.get(player.getUniqueId()), "никнейм");
-            playerInfo = playerInfo.appendNewline();
-        }
-
-        if (playerLastIp.containsKey(player.getUniqueId()))
-        {
-            playerInfo = playerInfo.append(Component.text("Последний IP адрес: ").color(NamedTextColor.BLUE));
-            playerInfo = playerInfoAppend(playerInfo, args[1], playerLastIp.get(player.getUniqueId()), "IP адрес");
-        }
-
-        sender.sendMessage(playerInfo);
-    }
-
-    private Component playerInfoAppend(@NotNull final Component playerInfo, @NotNull final String playerNick, @NotNull final String append, @NotNull final String hoverEnd)
-    {
-        return playerInfo.append(Component.text(append).color(NamedTextColor.WHITE))
-                .appendSpace()
-                .append(Component.text("[✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
-                        .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому " + hoverEnd + "у").color(NamedTextColor.GREEN)))
-                        .clickEvent(ClickEvent.suggestCommand("/twinkies data " + playerNick + " " + append + " find")))
+        sender.sendMessage(getPlayerInfo(player, (nickname) ->
+                Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
+                .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому никнейму").color(NamedTextColor.GREEN)))
+                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + nickname + " find"))
                 .appendSpace()
                 .append(Component.text("[✖]").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
-                        .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы удалить этот " + hoverEnd).color(NamedTextColor.RED)))
-                        .clickEvent(ClickEvent.suggestCommand("/twinkies data " + playerNick + " " + append + " delete")));
+                .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы удалить этот никнейм").color(NamedTextColor.RED)))
+                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + nickname + " delete"))),
+                (ip) ->
+                Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
+                .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому IP адресу").color(NamedTextColor.GREEN)))
+                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + ip + " find"))
+                .appendSpace()
+                .append(Component.text("[✖]").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
+                .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы удалить этот IP адрес").color(NamedTextColor.RED)))
+                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + ip + " delete")))
+        ));
     }
 }

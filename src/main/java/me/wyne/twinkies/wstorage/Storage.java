@@ -37,11 +37,11 @@ public interface Storage {
      * HashMap is used because data is often stored as key:value.
      * @param data {@link HashMap} to get {@link Collection} from
      * @param key {@link HashMap} key to get {@link Collection} from
-     * @return {@link Collection} from data or null
+     * @return {@link Collection} from data or empty set
      * @param <KeyType> Data {@link HashMap} key type
      * @param <ValType> {@link Collection} value type
      */
-    @Nullable
+    @NotNull
     <KeyType, ValType> Collection<ValType> getCollection(@NotNull final HashMap<KeyType, ? extends Collection<ValType>> data, @NotNull final KeyType key);
 
     /**

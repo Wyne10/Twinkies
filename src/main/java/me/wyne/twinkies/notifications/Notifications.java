@@ -36,47 +36,6 @@ public class Notifications {
         }
     }
 
-    @NotNull
-    public static Component getPlayerInfo(@NotNull final OfflinePlayer player)
-    {
-        Component playerInfo = Component.text("Информация о игроке '")
-                .append(Component.text(player.getName()))
-                .append(Component.text("'"))
-                .appendNewline()
-                .append(Component.text("Никнеймы:"))
-                .color(NamedTextColor.BLUE)
-                .appendNewline();
-
-        if (plugin.getPlayerStorage().playerNicknames().containsKey(player.getUniqueId()))
-        {
-            playerInfo = ComponentExtensions.appendCollection(playerInfo, plugin.getPlayerStorage().playerNicknames().get(player.getUniqueId()), Style.style(NamedTextColor.WHITE));
-        }
-
-        playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).color(NamedTextColor.BLUE).appendNewline();
-
-        if (plugin.getPlayerStorage().playerIps().containsKey(player.getUniqueId()))
-        {
-            playerInfo = ComponentExtensions.appendCollection(playerInfo, plugin.getPlayerStorage().playerIps().get(player.getUniqueId()), Style.style(NamedTextColor.WHITE));
-        }
-
-        playerInfo = playerInfo.appendNewline();
-
-        if (plugin.getPlayerStorage().playerLastNickname().containsKey(player.getUniqueId()))
-        {
-            playerInfo = playerInfo.append(Component.text("Последний никнейм: ").color(NamedTextColor.BLUE));
-            playerInfo = playerInfo.append(Component.text(plugin.getPlayerStorage().playerLastNickname().get(player.getUniqueId())).color(NamedTextColor.WHITE));
-            playerInfo = playerInfo.appendNewline();
-        }
-
-        if (plugin.getPlayerStorage().playerLastIp().containsKey(player.getUniqueId()))
-        {
-            playerInfo = playerInfo.append(Component.text("Последний IP адрес: ").color(NamedTextColor.BLUE));
-            playerInfo = playerInfo.append(Component.text(plugin.getPlayerStorage().playerLastIp().get(player.getUniqueId())).color(NamedTextColor.WHITE));
-        }
-
-        return playerInfo;
-    }
-
     public static void sendNotification(@NotNull final Player player, @NotNull final String stringMessage, @NotNull final NotificationType notificationType)
     {
         Component message = plugin.getMiniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, stringMessage))
@@ -84,7 +43,7 @@ public class Notifications {
                         TextReplacementConfig.builder()
                                 .matchLiteral(player.getName())
                                 .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(player)))).build());
+                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(player, (nickname) -> Component.empty(), (ip) -> Component.empty())))).build());
         sendNotification(message, notificationType);
     }
 
@@ -98,12 +57,12 @@ public class Notifications {
                         TextReplacementConfig.builder()
                                 .matchLiteral(player.getName())
                                 .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(player)))).build())
+                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(player, (nickname) -> Component.empty(), (ip) -> Component.empty())))).build())
                 .replaceText(
                         TextReplacementConfig.builder()
                                 .matchLiteral("%player_dupe%")
                                 .replacement(Component.text(dupePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(dupePlayer)))).build());
+                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(dupePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty())))).build());
         sendNotification(message, notificationType);
     }
 

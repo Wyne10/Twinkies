@@ -104,14 +104,14 @@ public class JoinListener implements Listener {
                 continue;
 
             // Handle dupe nick of player
-            if (storage.getCollection(storage.playerNicknames(), player.getUniqueId()) != null && storage.getCollection(storage.playerNicknames(), player.getUniqueId()).contains(p.getName()))
+            if (storage.getCollection(storage.playerNicknames(), player.getUniqueId()).contains(p.getName()))
             {
                 WLog.log(LogMessage.builder(notifConfig.getDupeNick()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", player.getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeNick());
                 Notifications.sendNotification(p, player, notifConfig.getDupeNick(), NotificationType.DUPE_NICK);
             }
 
             // Handle dupe IP of player
-            if (storage.getCollection(storage.playerIps(), player.getUniqueId()) != null && storage.getCollection(storage.playerIps(), player.getUniqueId()).contains(ip))
+            if (storage.getCollection(storage.playerIps(), player.getUniqueId()).contains(ip))
             {
                 WLog.log(LogMessage.builder(notifConfig.getDupeIp()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", player.getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeIp());
                 Notifications.sendNotification(p, player, notifConfig.getDupeIp(), NotificationType.DUPE_IP);

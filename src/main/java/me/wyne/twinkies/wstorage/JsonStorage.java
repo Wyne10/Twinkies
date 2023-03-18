@@ -83,11 +83,11 @@ public abstract class JsonStorage implements Storage {
      * @param <KeyType> Data {@link HashMap} key type
      * @param <ValType> {@link Collection} value type
      */
-    @Nullable
+    @NotNull
     public <KeyType, ValType> Collection<ValType> getCollection(@NotNull final HashMap<KeyType, ? extends Collection<ValType>> data, @NotNull final KeyType key)
     {
         if (!data.containsKey(key) || data.get(key).isEmpty())
-            return null;
+            return Collections.emptySet();
         return data.get(key);
     }
 
