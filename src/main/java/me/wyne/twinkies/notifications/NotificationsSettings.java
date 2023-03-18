@@ -1,7 +1,6 @@
 package me.wyne.twinkies.notifications;
 
 import me.wyne.twinkies.wsettings.Setting;
-import me.wyne.twinkies.wsettings.SettingReference;
 import me.wyne.twinkies.wsettings.WSettings;
 
 public class NotificationsSettings extends WSettings {

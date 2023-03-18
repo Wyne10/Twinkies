@@ -1,11 +1,11 @@
 package me.wyne.twinkies.logging;
 
 import me.wyne.twinkies.wconfig.ConfigField;
+import me.wyne.twinkies.wconfig.WConfig;
 import me.wyne.twinkies.wlog.WLogConfig;
 import me.wyne.twinkies.wsettings.Setting;
-import me.wyne.twinkies.wsettings.WSettings;
 
-public class LoggingConfig extends WSettings implements WLogConfig {
+public class LoggingConfig extends WConfig implements WLogConfig {
 
     @Setting(setMessage = "Логирование ошибок")
     @ConfigField(path = "log-err")

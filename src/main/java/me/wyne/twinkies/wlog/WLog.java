@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WLog {
+public final class WLog {
 
     private static Logger logger = null;
     private static WLogConfig config = null;

@@ -11,6 +11,7 @@ import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.storage.PlayerStorage;
 import me.wyne.twinkies.wconfig.WConfig;
+import me.wyne.twinkies.wsettings.WSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -63,8 +64,6 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
         Notifications.registerPlugin(this);
 
         // Initialize configs
-        WConfig.registerConfigObject(notificationsConfig);
-        WConfig.registerConfigObject(loggingConfig);
         WConfig.reloadConfigObjects(getConfig());
 
         Bukkit.getPluginManager().registerEvents(joinListener, this);
@@ -171,12 +170,12 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
             return;
         if (!args[0].equalsIgnoreCase("logging"))
             return;
-        if (loggingConfig.<Boolean>getSetting(args[1]) == null)
+        if (WSettings.<Boolean>getSetting(loggingConfig, args[1]) == null)
             return;
 
-        Component setMessage = loggingConfig.setSetting(args[1], !loggingConfig.<Boolean>getSetting(args[1]));
+        Component setMessage = WSettings.setSetting(loggingConfig, args[1], !WSettings.<Boolean>getSetting(loggingConfig, args[1]));
 
-        if (loggingConfig.<Boolean>getSetting(args[1]))
+        if (WSettings.<Boolean>getSetting(loggingConfig, args[1]))
             sender.sendMessage(setMessage.append(Component.text(" включено.").color(NamedTextColor.GREEN)));
         else
             sender.sendMessage(setMessage.append(Component.text(" отключено.").color(NamedTextColor.RED)));

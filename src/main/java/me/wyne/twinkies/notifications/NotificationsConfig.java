@@ -1,8 +1,9 @@
 package me.wyne.twinkies.notifications;
 
 import me.wyne.twinkies.wconfig.ConfigField;
+import me.wyne.twinkies.wconfig.WConfig;
 
-public class NotificationsConfig {
+public class NotificationsConfig extends WConfig {
 
     @ConfigField(path = "notif-register")
     private String register = "<green>Зарегистрирован новый игрок" +
