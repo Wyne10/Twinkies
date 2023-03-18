@@ -50,11 +50,11 @@ public abstract class JsonStorage implements Storage {
                     writer.flush();
                     writer.close();
                 }
+                WLog.info("Файл '" + storageFile.getName() + "' создан");
             } catch (IOException e) {
                 WLog.error("Произошла ошибка при создании файла '" + storageFile.getName() + "'");
                 WLog.error(e.getMessage());
             }
-            WLog.info("Файл '" + storageFile.getName() + "' создан");
         }
     }
 

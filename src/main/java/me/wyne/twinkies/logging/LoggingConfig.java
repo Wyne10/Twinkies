@@ -4,6 +4,15 @@ import me.wyne.twinkies.wconfig.ConfigField;
 import me.wyne.twinkies.wconfig.WConfig;
 import me.wyne.twinkies.wlog.WLogConfig;
 import me.wyne.twinkies.wsettings.Setting;
+import me.wyne.twinkies.wsettings.WSettings;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoggingConfig extends WConfig implements WLogConfig {
 
@@ -83,5 +92,54 @@ public class LoggingConfig extends WConfig implements WLogConfig {
 
     public boolean logDupeIp() {
         return logDupeIp;
+    }
+
+    @NotNull
+    public List<String> loggingTabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.logging"))
+            return List.of();
+
+        List<String> result = new ArrayList<>();
+
+        if (args.length == 1)
+        {
+            result.add("logging");
+        }
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("logging"))
+        {
+            for (Field field : LoggingConfig.class.getDeclaredFields())
+            {
+                if (args[1].isBlank())
+                    result.add(field.getName());
+                else
+                {
+                    if (field.getName().toLowerCase().contains(args[1].toLowerCase()))
+                        result.add(field.getName());
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public void setLoggingSetting(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.logging"))
+            return;
+        if (args.length != 2)
+            return;
+        if (!args[0].equalsIgnoreCase("logging"))
+            return;
+        if (WSettings.<Boolean>getSetting(this, args[1]) == null)
+            return;
+
+        Component setMessage = WSettings.setSetting(this, args[1], !WSettings.<Boolean>getSetting(this, args[1]));
+
+        if (WSettings.<Boolean>getSetting(this, args[1]))
+            sender.sendMessage(setMessage.append(Component.text(" включено.").color(NamedTextColor.GREEN)));
+        else
+            sender.sendMessage(setMessage.append(Component.text(" отключено.").color(NamedTextColor.RED)));
     }
 }

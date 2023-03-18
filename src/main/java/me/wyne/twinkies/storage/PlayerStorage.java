@@ -5,7 +5,6 @@ import me.wyne.twinkies.Twinkies;
 import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.wstorage.JsonStorage;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -149,32 +148,33 @@ public class PlayerStorage extends JsonStorage {
 
         if (args.length == 2 && args[0].equalsIgnoreCase("data"))
         {
-            for (OfflinePlayer player : Bukkit.getOfflinePlayers())
+            Set<UUID> playerUUIDs = new HashSet<>(playerNicknames.keySet());
+            playerUUIDs.addAll(playerIps.keySet());
+
+            for (UUID playerUUID : playerUUIDs)
             {
                 if (args[1].isBlank())
-                    result.add(player.getName());
+                    result.add(Bukkit.getOfflinePlayer(playerUUID).getName());
                 else
                 {
-                    if (player.getName().toLowerCase().startsWith(args[1].toLowerCase()))
-                        result.add(player.getName());
+                    if (Bukkit.getOfflinePlayer(playerUUID).getName().toLowerCase().startsWith(args[1].toLowerCase()))
+                        result.add(Bukkit.getOfflinePlayer(playerUUID).getName());
                 }
             }
         }
 
         if (args.length == 3 && args[0].equalsIgnoreCase("data"))
         {
-            if (Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore())
-            {
-                result.addAll(getCollection(playerNicknames, Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
-                result.addAll(getCollection(playerIps, Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
-                if (sender.hasPermission("twinkies.playerDataMod"))
-                    result.add("delete");
-            }
+            result.add("search");
+            if (sender.hasPermission("twinkies.playerDataMod"))
+                result.add("delete");
+            result.addAll(getCollection(playerNicknames, Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
+            result.addAll(getCollection(playerIps, Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
         }
 
         if (args.length == 4 && args[0].equalsIgnoreCase("data"))
         {
-            result.add("find");
+            result.add("search");
             if (sender.hasPermission("twinkies.playerDataMod"))
                 result.add("delete");
         }
@@ -190,13 +190,13 @@ public class PlayerStorage extends JsonStorage {
             return;
         if (!args[0].equalsIgnoreCase("data"))
             return;
-        if (!Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore())
+        if (!playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()) && !playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
         {
             sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
             WLog.error("Произошла ошибка при попытке получить данные о игроке '" + args[1] + "'");
             WLog.error("Игрок '" + args[1] + "' не найден");
             if (sender instanceof Player)
-                WLog.error("Игрок: '" + sender.getName() + "'");
+                WLog.error("Исполнитель запроса: '" + sender.getName() + "'");
             else
                 WLog.error("Запрос был выполнен из консоли");
             return;
@@ -207,7 +207,7 @@ public class PlayerStorage extends JsonStorage {
         sender.sendMessage(getPlayerInfo(player, (nickname) ->
                 Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
                 .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому никнейму").color(NamedTextColor.GREEN)))
-                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + nickname + " find"))
+                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + nickname + " search"))
                 .appendSpace()
                 .append(Component.text("[✖]").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
                 .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы удалить этот никнейм").color(NamedTextColor.RED)))
@@ -215,12 +215,265 @@ public class PlayerStorage extends JsonStorage {
                 (ip) ->
                 Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
                 .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому IP адресу").color(NamedTextColor.GREEN)))
-                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + ip + " find"))
+                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + ip + " search"))
                 .appendSpace()
                 .append(Component.text("[✖]").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
                 .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы удалить этот IP адрес").color(NamedTextColor.RED)))
                 .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + ip + " delete")))
         ));
+
+        if (sender instanceof Player)
+            WLog.info("Игрок '" + sender.getName() + "' запросил данные о игроке '" + args[1] + "'");
+        else
+            WLog.info("Консоль запросила данные о игроке '" + args[1] + "'");
+    }
+
+    public void searchTwinks(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return;
+        if (args.length < 3)
+            return;
+        if (!args[0].equalsIgnoreCase("data"))
+            return;
+        if (!playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()) && !playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
+        {
+            sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
+            WLog.error("Произошла ошибка при попытке получить твинки игрока '" + args[1] + "'");
+            WLog.error("Игрок '" + args[1] + "' не найден");
+            if (sender instanceof Player)
+                WLog.error("Исполнитель запроса: '" + sender.getName() + "'");
+            else
+                WLog.error("Запрос был выполнен из консоли");
+            return;
+        }
+
+        OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
+        UUID playerUUID = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
+
+        if (args.length == 4 && args[3].equalsIgnoreCase("search"))
+        {
+            if (getCollection(playerNicknames, playerUUID).contains(args[2]))
+            {
+                Component searchResult = Component.text("Результаты поиска твинков по нику '")
+                        .append(Component.text(args[2]))
+                        .append(Component.text("'"))
+                        .appendNewline()
+                        .append(Component.text("Найденные твинки: "))
+                        .color(NamedTextColor.BLUE)
+                        .appendNewline();
+
+                Set<Component> foundTwinks = new HashSet<>();
+                Set<Component> predictedTwinks = new HashSet<>();
+
+                Set<String> predictSplitRegex = new HashSet<>();
+                predictSplitRegex.add("(?=\\p{Upper})");
+                predictSplitRegex.add("_+");
+                predictSplitRegex.add("\\.+");
+
+                for (UUID compareUUID : playerNicknames.keySet())
+                {
+                    if (playerUUID.equals(compareUUID))
+                        continue;
+
+                    OfflinePlayer comparePlayer =  Bukkit.getOfflinePlayer(compareUUID);
+
+                    if (getCollection(playerNicknames, compareUUID).contains(args[2]))
+                    {
+                       foundTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
+                                .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))).appendNewline());
+                    }
+
+                    for (String splitRegex : predictSplitRegex)
+                    {
+                        for (String nickPart : args[1].split(splitRegex))
+                        {
+                            for (String compareNick : getCollection(playerNicknames, compareUUID))
+                            {
+                                if (compareNick.contains(nickPart) && !compareNick.equals(nickPart))
+                                    predictedTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
+                                            .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
+                            }
+                        }
+                    }
+                }
+
+                for (Component foundTwink : foundTwinks)
+                {
+                    searchResult = searchResult.append(foundTwink);
+                }
+                searchResult = searchResult.appendNewline();
+                searchResult = searchResult.append(Component.text("Игроки с похожими никнеймами:"))
+                        .color(NamedTextColor.BLUE);
+                if (!predictedTwinks.isEmpty())
+                {
+                    searchResult = searchResult.appendNewline();
+                    int i = 0;
+                    for (Component predictedTwink : predictedTwinks)
+                    {
+                        searchResult = searchResult.append(predictedTwink);
+                        if (i != predictedTwinks.size() - 1)
+                            searchResult = searchResult.appendNewline();
+                        i++;
+                    }
+                }
+
+                sender.sendMessage(searchResult);
+                if (sender instanceof Player)
+                    WLog.info("Игрок '" + sender.getName() + "' запросил поиск твинков игрока '" + args[1] + "' по нику '" + args[2] + "'");
+                else
+                    WLog.info("Консоль запросила поиск твинков игрока '" + args[1] + "' по нику '" + args[2] + "'");
+            }
+            else if (getCollection(playerIps, playerUUID).contains(args[2]))
+            {
+                Component searchResult = Component.text("Результаты поиска твинков по IP адресу '")
+                        .append(Component.text(args[2]))
+                        .append(Component.text("'"))
+                        .appendNewline()
+                        .append(Component.text("Найденные твинки: "))
+                        .color(NamedTextColor.BLUE)
+                        .appendNewline();
+
+                int i = 0;
+                for (UUID compareUUID : playerIps.keySet())
+                {
+                    if (playerUUID.equals(compareUUID))
+                    {
+                        i++;
+                        continue;
+                    }
+
+                    OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
+
+                    if (getCollection(playerIps, compareUUID).contains(args[2]))
+                    {
+                        searchResult = searchResult.append(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
+                                .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
+                        if (i != playerIps.size() - 1)
+                            searchResult = searchResult.appendNewline();
+                    }
+
+                    i++;
+                }
+
+                sender.sendMessage(searchResult);
+                if (sender instanceof Player)
+                    WLog.info("Игрок '" + sender.getName() + "' запросил поиск твинков игрока '" + args[1] + "' по IP адресу '" + args[2] + "'");
+                else
+                    WLog.info("Консоль запросила поиск твинков игрока '" + args[1] + "' по IP адресу '" + args[2] + "'");
+            }
+            else
+            {
+                sender.sendMessage(Component.text("Значение '").append(Component.text(args[2])).append(Component.text("' игрока '")).append(Component.text(args[1])).append(Component.text("' не найдено!")).color(NamedTextColor.RED));
+                WLog.error("Произошла ошибка при попытке получить твинки игрока '" + args[1] + "'");
+                WLog.error("Значение '" + args[2] + "' не найдено");
+                if (sender instanceof Player)
+                    WLog.error("Исполнитель запроса: '" + sender.getName() + "'");
+                else
+                    WLog.error("Запрос был выполнен из консоли");
+            }
+        }
+        else if (args.length == 3 && args[2].equalsIgnoreCase("search"))
+        {
+
+        }
+    }
+
+    @NotNull
+    private Set<Component> searchTwinksByNick(@NotNull final String playerNick)
+    {
+        UUID playerUUID = Bukkit.getOfflinePlayer(playerNick).getUniqueId();
+
+        if (getCollection(playerNicknames, playerUUID).contains(playerNick))
+        {
+            Set<Component> foundTwinks = new HashSet<>();
+
+            for (UUID compareUUID : playerNicknames.keySet())
+            {
+                if (playerUUID.equals(compareUUID))
+                    continue;
+
+                OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
+
+                if (getCollection(playerNicknames, compareUUID).contains(playerNick))
+                {
+                    foundTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
+                            .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
+                }
+            }
+
+            return foundTwinks;
+        }
+
+        return Collections.emptySet();
+    }
+
+    @NotNull
+    private Set<Component> predictTwinksByNick(@NotNull final String playerNick)
+    {
+        UUID playerUUID = Bukkit.getOfflinePlayer(playerNick).getUniqueId();
+
+        if (getCollection(playerNicknames, playerUUID).contains(playerNick))
+        {
+            Set<Component> predictedTwinks = new HashSet<>();
+
+            Set<String> predictSplitRegex = new HashSet<>();
+            predictSplitRegex.add("(?=\\p{Upper})");
+            predictSplitRegex.add("_+");
+            predictSplitRegex.add("\\.+");
+
+            for (UUID compareUUID : playerNicknames.keySet())
+            {
+                if (playerUUID.equals(compareUUID))
+                    continue;
+
+                OfflinePlayer comparePlayer =  Bukkit.getOfflinePlayer(compareUUID);
+
+                for (String splitRegex : predictSplitRegex)
+                {
+                    for (String nickPart : playerNick.split(splitRegex))
+                    {
+                        for (String compareNick : getCollection(playerNicknames, compareUUID))
+                        {
+                            if (compareNick.contains(nickPart) && !compareNick.equals(nickPart))
+                                predictedTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
+                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
+                        }
+                    }
+                }
+            }
+
+            return predictedTwinks;
+        }
+
+        return Collections.emptySet();
+    }
+
+    @NotNull
+    private Set<Component> searchTwinksByIp(@NotNull final String playerNick, @NotNull final String playerIp)
+    {
+        UUID playerUUID = Bukkit.getOfflinePlayer(playerNick).getUniqueId();
+
+        if (getCollection(playerIps, playerUUID).contains(playerIp))
+        {
+            Set<Component> foundTwinks = new HashSet<>();
+
+            for (UUID compareUUID : playerIps.keySet())
+            {
+                if (playerUUID.equals(compareUUID))
+                    continue;
+
+                OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
+
+                if (getCollection(playerIps, compareUUID).contains(playerIp))
+                {
+                    foundTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
+                            .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
+                }
+            }
+        }
+
+        return Collections.emptySet();
     }
 
     public void deleteData(@NotNull final CommandSender sender, @NotNull final String[] args)
@@ -231,13 +484,13 @@ public class PlayerStorage extends JsonStorage {
             return;
         if (!args[0].equalsIgnoreCase("data"))
             return;
-        if (!Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore())
+        if (!playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()) && !playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
         {
             sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
             WLog.error("Произошла ошибка при попытке удалить данные о игроке '" + args[1] + "'");
             WLog.error("Игрок '" + args[1] + "' не найден");
             if (sender instanceof Player)
-                WLog.error("Игрок: '" + sender.getName() + "'");
+                WLog.error("Исполнитель запроса: '" + sender.getName() + "'");
             else
                 WLog.error("Запрос был выполнен из консоли");
             return;
@@ -245,11 +498,11 @@ public class PlayerStorage extends JsonStorage {
 
         UUID playerUUID = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
 
-        if (!args[2].equalsIgnoreCase("delete"))
+        if (args.length == 4 && args[3].equalsIgnoreCase("delete"))
         {
             boolean deleted = false;
 
-            if (playerLastNickname.containsKey(playerUUID) && playerLastNickname.get(playerUUID).equalsIgnoreCase(args[2]))
+            if (playerLastNickname.containsKey(playerUUID) && playerLastNickname.get(playerUUID).equals(args[2]))
             {
                 remove(playerLastNickname, playerUUID, "last-nickname");
                 deleted = true;
@@ -260,7 +513,7 @@ public class PlayerStorage extends JsonStorage {
                 deleted = true;
             }
 
-            if (playerLastIp.containsKey(playerUUID) && playerLastIp.get(playerUUID).equalsIgnoreCase(args[2]))
+            if (playerLastIp.containsKey(playerUUID) && playerLastIp.get(playerUUID).equals(args[2]))
             {
                 remove(playerLastIp, playerUUID, "last-ip");
                 deleted = true;
@@ -277,19 +530,19 @@ public class PlayerStorage extends JsonStorage {
                 WLog.error("Произошла ошибка при попытке удалить данные о игроке '" + args[1] + "'");
                 WLog.error("Значение '" + args[2] + "' не найдено");
                 if (sender instanceof Player)
-                    WLog.error("Игрок: '" + sender.getName() + "'");
+                    WLog.error("Исполнитель запроса: '" + sender.getName() + "'");
                 else
                     WLog.error("Запрос был выполнен из консоли");
+                return;
             }
-            else {
-                sender.sendMessage(Component.text("Значение '").append(Component.text(args[2])).append(Component.text("' игрока '")).append(Component.text(args[1])).append(Component.text("' удалено.")).color(NamedTextColor.GREEN));
-                if (sender instanceof Player)
-                    WLog.info("Значение '" + args[2] + "' игрока '" + args[1] + "' удалено игроком '" + sender.getName() + "'");
-                else
-                    WLog.info("Значение '" + args[2] + "' игрока '" + args[1] + "' удалено консолью");
-            }
+
+            sender.sendMessage(Component.text("Значение '").append(Component.text(args[2])).append(Component.text("' игрока '")).append(Component.text(args[1])).append(Component.text("' удалено.")).color(NamedTextColor.GREEN));
+            if (sender instanceof Player)
+                WLog.info("Значение '" + args[2] + "' игрока '" + args[1] + "' удалено игроком '" + sender.getName() + "'");
+            else
+                WLog.info("Значение '" + args[2] + "' игрока '" + args[1] + "' удалено консолью");
         }
-        else
+        else if (args.length == 3 && args[2].equalsIgnoreCase("delete"))
         {
             playerLastNickname.remove(playerUUID);
             playerNicknames.remove(playerUUID);

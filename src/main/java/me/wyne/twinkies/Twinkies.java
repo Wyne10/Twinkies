@@ -2,9 +2,7 @@ package me.wyne.twinkies;
 
 import me.wyne.twinkies.listeners.JoinListener;
 import me.wyne.twinkies.logging.LoggingConfig;
-import me.wyne.twinkies.notifications.NotificationType;
 import me.wyne.twinkies.notifications.Notifications;
-import me.wyne.twinkies.notifications.NotificationsSettings;
 import me.wyne.twinkies.placeholderAPI.PlayerPlaceholders;
 import me.wyne.twinkies.storage.NotificationsSettingsStorage;
 import me.wyne.twinkies.wlog.WLog;
@@ -112,7 +110,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
 
         List<String> result = new ArrayList<>();
 
-        result.addAll(loggingTabComplete(sender, args));
+        result.addAll(loggingConfig.loggingTabComplete(sender, args));
         result.addAll(notificationsSettingsStorage.tabComplete(sender, args));
         result.addAll(playerStorage.tabComplete(sender, args));
 
@@ -123,62 +121,15 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args)
     {
         playerStorage.showDataManager(sender, args);
+        playerStorage.searchTwinks(sender, args);
         playerStorage.deleteData(sender, args);
 
         if (!(sender instanceof Player))
             return true;
 
         notificationsSettingsStorage.setSetting(sender, args);
-        setLoggingSetting(sender, args);
+        loggingConfig.setLoggingSetting(sender, args);
 
         return false;
-    }
-
-    public List<String> loggingTabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
-    {
-        if (!sender.hasPermission("twinkies.logging"))
-            return List.of();
-
-        List<String> result = new ArrayList<>();
-
-        if (args.length == 1)
-        {
-            result.add("logging");
-        }
-
-        if (args.length == 2 && args[0].equalsIgnoreCase("logging"))
-        {
-            for (Field field : LoggingConfig.class.getDeclaredFields())
-            {
-                if (args[1].isBlank())
-                    result.add(field.getName());
-                else
-                {
-                    if (field.getName().toLowerCase().contains(args[1].toLowerCase()))
-                        result.add(field.getName());
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public void setLoggingSetting(@NotNull final CommandSender sender, @NotNull final String[] args)
-    {
-        if (!sender.hasPermission("twinkies.logging"))
-            return;
-        if (args.length != 2)
-            return;
-        if (!args[0].equalsIgnoreCase("logging"))
-            return;
-        if (WSettings.<Boolean>getSetting(loggingConfig, args[1]) == null)
-            return;
-
-        Component setMessage = WSettings.setSetting(loggingConfig, args[1], !WSettings.<Boolean>getSetting(loggingConfig, args[1]));
-
-        if (WSettings.<Boolean>getSetting(loggingConfig, args[1]))
-            sender.sendMessage(setMessage.append(Component.text(" включено.").color(NamedTextColor.GREEN)));
-        else
-            sender.sendMessage(setMessage.append(Component.text(" отключено.").color(NamedTextColor.RED)));
     }
 }

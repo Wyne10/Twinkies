@@ -49,13 +49,13 @@ public class WConfig {
                     }
                 }
             }
+            WLog.info("Конфиг перезагружен");
         }
         catch (IllegalAccessException e)
         {
             WLog.error("Произошла ошибка при перезагрузке конфига");
             WLog.error(e.getMessage());
         }
-        WLog.info("Конфиг перезагружен");
     }
 
 }
