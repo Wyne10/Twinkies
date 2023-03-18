@@ -248,7 +248,6 @@ public class PlayerStorage extends JsonStorage {
             return;
         }
 
-        OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
         UUID playerUUID = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
 
         if (args.length == 4 && args[3].equalsIgnoreCase("search"))
@@ -258,57 +257,30 @@ public class PlayerStorage extends JsonStorage {
                 Component searchResult = Component.text("Результаты поиска твинков по нику '")
                         .append(Component.text(args[2]))
                         .append(Component.text("'"))
-                        .appendNewline()
-                        .append(Component.text("Найденные твинки: "))
-                        .color(NamedTextColor.BLUE)
-                        .appendNewline();
-
-                Set<Component> foundTwinks = new HashSet<>();
-                Set<Component> predictedTwinks = new HashSet<>();
-
-                Set<String> predictSplitRegex = new HashSet<>();
-                predictSplitRegex.add("(?=\\p{Upper})");
-                predictSplitRegex.add("_+");
-                predictSplitRegex.add("\\.+");
-
-                for (UUID compareUUID : playerNicknames.keySet())
-                {
-                    if (playerUUID.equals(compareUUID))
-                        continue;
-
-                    OfflinePlayer comparePlayer =  Bukkit.getOfflinePlayer(compareUUID);
-
-                    if (getCollection(playerNicknames, compareUUID).contains(args[2]))
-                    {
-                       foundTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                                .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))).appendNewline());
-                    }
-
-                    for (String splitRegex : predictSplitRegex)
-                    {
-                        for (String nickPart : args[1].split(splitRegex))
-                        {
-                            for (String compareNick : getCollection(playerNicknames, compareUUID))
-                            {
-                                if (compareNick.contains(nickPart) && !compareNick.equals(nickPart))
-                                    predictedTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                                            .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
-                            }
-                        }
-                    }
-                }
-
-                for (Component foundTwink : foundTwinks)
-                {
-                    searchResult = searchResult.append(foundTwink);
-                }
-                searchResult = searchResult.appendNewline();
-                searchResult = searchResult.append(Component.text("Игроки с похожими никнеймами:"))
                         .color(NamedTextColor.BLUE);
+
+                Set<Component> foundTwinks = searchTwinksByNick(playerUUID, args[2]);
+                Set<Component> predictedTwinks = predictTwinksByNick(playerUUID, args[2]);
+
+                int i = 0;
+                if (!foundTwinks.isEmpty())
+                {
+                    searchResult = searchResult.appendNewline();
+                    searchResult = searchResult.append(Component.text("Найденные твинки: ")).color(NamedTextColor.BLUE);
+                    searchResult = searchResult.appendNewline();
+                    for (Component foundTwink : foundTwinks)
+                    {
+                        searchResult = searchResult.append(foundTwink);
+                        if (i != foundTwinks.size() - 1)
+                            searchResult = searchResult.appendNewline();
+                    }
+                }
+                i = 0;
                 if (!predictedTwinks.isEmpty())
                 {
                     searchResult = searchResult.appendNewline();
-                    int i = 0;
+                    searchResult = searchResult.append(Component.text("Игроки с похожими никнеймами:")).color(NamedTextColor.BLUE);
+                    searchResult = searchResult.appendNewline();
                     for (Component predictedTwink : predictedTwinks)
                     {
                         searchResult = searchResult.append(predictedTwink);
@@ -318,7 +290,11 @@ public class PlayerStorage extends JsonStorage {
                     }
                 }
 
+                if (foundTwinks.isEmpty() && predictedTwinks.isEmpty())
+                    searchResult = Component.text("Твинки не найдены.").color(NamedTextColor.RED);
+
                 sender.sendMessage(searchResult);
+
                 if (sender instanceof Player)
                     WLog.info("Игрок '" + sender.getName() + "' запросил поиск твинков игрока '" + args[1] + "' по нику '" + args[2] + "'");
                 else
@@ -329,34 +305,30 @@ public class PlayerStorage extends JsonStorage {
                 Component searchResult = Component.text("Результаты поиска твинков по IP адресу '")
                         .append(Component.text(args[2]))
                         .append(Component.text("'"))
-                        .appendNewline()
-                        .append(Component.text("Найденные твинки: "))
-                        .color(NamedTextColor.BLUE)
-                        .appendNewline();
+                        .color(NamedTextColor.BLUE);
+
+                Set<Component> foundTwinks = searchTwinksByIp(playerUUID, args[2]);
 
                 int i = 0;
-                for (UUID compareUUID : playerIps.keySet())
+                if (!foundTwinks.isEmpty())
                 {
-                    if (playerUUID.equals(compareUUID))
+                    searchResult = searchResult.appendNewline();
+                    searchResult = searchResult.append(Component.text("Найденные твинки: ")).color(NamedTextColor.BLUE);
+                    searchResult = searchResult.appendNewline();
+                    for (Component foundTwink : foundTwinks)
                     {
-                        i++;
-                        continue;
-                    }
-
-                    OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
-
-                    if (getCollection(playerIps, compareUUID).contains(args[2]))
-                    {
-                        searchResult = searchResult.append(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                                .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
-                        if (i != playerIps.size() - 1)
+                        searchResult = searchResult.append(foundTwink);
+                        if (i != foundTwinks.size() - 1)
                             searchResult = searchResult.appendNewline();
                     }
-
-                    i++;
+                }
+                else
+                {
+                    searchResult = Component.text("Твинки не найдены.").color(NamedTextColor.RED);
                 }
 
                 sender.sendMessage(searchResult);
+
                 if (sender instanceof Player)
                     WLog.info("Игрок '" + sender.getName() + "' запросил поиск твинков игрока '" + args[1] + "' по IP адресу '" + args[2] + "'");
                 else
@@ -375,105 +347,150 @@ public class PlayerStorage extends JsonStorage {
         }
         else if (args.length == 3 && args[2].equalsIgnoreCase("search"))
         {
+            Component searchResult = Component.text("Результаты поиска твинков игрока '")
+                    .append(Component.text(args[1]))
+                    .append(Component.text("'"))
+                    .color(NamedTextColor.BLUE);
 
-        }
-    }
-
-    @NotNull
-    private Set<Component> searchTwinksByNick(@NotNull final String playerNick)
-    {
-        UUID playerUUID = Bukkit.getOfflinePlayer(playerNick).getUniqueId();
-
-        if (getCollection(playerNicknames, playerUUID).contains(playerNick))
-        {
             Set<Component> foundTwinks = new HashSet<>();
+            Set<Component> predictedTwinks = new HashSet<>();
 
-            for (UUID compareUUID : playerNicknames.keySet())
+            for (String nick : getCollection(playerNicknames, playerUUID))
             {
-                if (playerUUID.equals(compareUUID))
-                    continue;
+                foundTwinks.addAll(searchTwinksByNick(playerUUID, nick));
+                predictedTwinks.addAll(predictTwinksByNick(playerUUID, nick));
+            }
 
-                OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
+            for (String ip : getCollection(playerIps, playerUUID))
+            {
+                foundTwinks.addAll(searchTwinksByIp(playerUUID, ip));
+            }
 
-                if (getCollection(playerNicknames, compareUUID).contains(playerNick))
+            int i = 0;
+            if (!foundTwinks.isEmpty())
+            {
+                searchResult = searchResult.appendNewline();
+                searchResult = searchResult.append(Component.text("Найденные твинки: ")).color(NamedTextColor.BLUE);
+                searchResult = searchResult.appendNewline();
+                for (Component foundTwink : foundTwinks)
                 {
-                    foundTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                            .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
+                    searchResult = searchResult.append(foundTwink);
+                    if (i != foundTwinks.size() - 1)
+                        searchResult = searchResult.appendNewline();
+                }
+            }
+            i = 0;
+            if (!predictedTwinks.isEmpty())
+            {
+                searchResult = searchResult.appendNewline();
+                searchResult = searchResult.append(Component.text("Игроки с похожими никнеймами:")).color(NamedTextColor.BLUE);
+                searchResult = searchResult.appendNewline();
+                for (Component predictedTwink : predictedTwinks)
+                {
+                    searchResult = searchResult.append(predictedTwink);
+                    if (i != predictedTwinks.size() - 1)
+                        searchResult = searchResult.appendNewline();
+                    i++;
                 }
             }
 
-            return foundTwinks;
-        }
+            if (foundTwinks.isEmpty() && predictedTwinks.isEmpty())
+                searchResult = Component.text("Твинки не найдены.").color(NamedTextColor.RED);
 
-        return Collections.emptySet();
+            sender.sendMessage(searchResult);
+
+            if (sender instanceof Player)
+                WLog.info("Игрок '" + sender.getName() + "' запросил поиск твинков игрока '" + args[1] + "'");
+            else
+                WLog.info("Консоль запросила поиск твинков игрока '" + args[1] + "'");
+        }
     }
 
     @NotNull
-    private Set<Component> predictTwinksByNick(@NotNull final String playerNick)
+    private Set<Component> searchTwinksByNick(@NotNull final UUID playerUUID, final String searchNick)
     {
-        UUID playerUUID = Bukkit.getOfflinePlayer(playerNick).getUniqueId();
+        Set<Component> foundTwinks = new HashSet<>();
 
-        if (getCollection(playerNicknames, playerUUID).contains(playerNick))
+        for (UUID compareUUID : playerNicknames.keySet())
         {
-            Set<Component> predictedTwinks = new HashSet<>();
+            if (playerUUID.equals(compareUUID))
+                continue;
 
-            Set<String> predictSplitRegex = new HashSet<>();
-            predictSplitRegex.add("(?=\\p{Upper})");
-            predictSplitRegex.add("_+");
-            predictSplitRegex.add("\\.+");
+            OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
 
-            for (UUID compareUUID : playerNicknames.keySet())
+            if (getCollection(playerNicknames, compareUUID).contains(searchNick))
             {
-                if (playerUUID.equals(compareUUID))
-                    continue;
+                foundTwinks.add(Component.empty()
+                        .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))))
+                        .append(Component.text(" ("))
+                        .append(Component.text(searchNick))
+                        .append(Component.text(")")));
+            }
+        }
 
-                OfflinePlayer comparePlayer =  Bukkit.getOfflinePlayer(compareUUID);
+        return foundTwinks;
+    }
 
-                for (String splitRegex : predictSplitRegex)
+    @NotNull
+    private Set<Component> predictTwinksByNick(@NotNull final UUID playerUUID, final String predictNick)
+    {
+        Set<Component> predictedTwinks = new HashSet<>();
+
+        Set<String> predictSplitRegex = new HashSet<>();
+        predictSplitRegex.add("(?=\\p{Upper})");
+        predictSplitRegex.add("_+");
+        predictSplitRegex.add("\\.+");
+
+        for (UUID compareUUID : playerNicknames.keySet())
+        {
+            if (playerUUID.equals(compareUUID))
+                continue;
+
+            OfflinePlayer comparePlayer =  Bukkit.getOfflinePlayer(compareUUID);
+
+            for (String splitRegex : predictSplitRegex)
+            {
+                for (String nickPart : predictNick.split(splitRegex))
                 {
-                    for (String nickPart : playerNick.split(splitRegex))
+                    for (String compareNick : getCollection(playerNicknames, compareUUID))
                     {
-                        for (String compareNick : getCollection(playerNicknames, compareUUID))
-                        {
-                            if (compareNick.contains(nickPart) && !compareNick.equals(nickPart))
-                                predictedTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
-                        }
+                        if (compareNick.contains(nickPart) && !compareNick.equals(nickPart))
+                            predictedTwinks.add(Component.empty()
+                                    .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))))
+                                    .append(Component.text(" ("))
+                                    .append(Component.text(compareNick))
+                                    .append(Component.text(")")));
                     }
                 }
             }
-
-            return predictedTwinks;
         }
 
-        return Collections.emptySet();
+        return predictedTwinks;
     }
 
     @NotNull
-    private Set<Component> searchTwinksByIp(@NotNull final String playerNick, @NotNull final String playerIp)
+    private Set<Component> searchTwinksByIp(@NotNull final UUID playerUUID, @NotNull final String searchIp)
     {
-        UUID playerUUID = Bukkit.getOfflinePlayer(playerNick).getUniqueId();
+        Set<Component> foundTwinks = new HashSet<>();
 
-        if (getCollection(playerIps, playerUUID).contains(playerIp))
+        for (UUID compareUUID : playerIps.keySet())
         {
-            Set<Component> foundTwinks = new HashSet<>();
+            if (playerUUID.equals(compareUUID))
+                continue;
 
-            for (UUID compareUUID : playerIps.keySet())
+            OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
+
+            if (getCollection(playerIps, compareUUID).contains(searchIp))
             {
-                if (playerUUID.equals(compareUUID))
-                    continue;
-
-                OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
-
-                if (getCollection(playerIps, compareUUID).contains(playerIp))
-                {
-                    foundTwinks.add(Component.text(comparePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                            .hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))));
-                }
+                foundTwinks.add(Component.empty()
+                        .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))))
+                        .append(Component.text(" ("))
+                        .append(Component.text(searchIp))
+                        .append(Component.text(")")));
             }
         }
 
-        return Collections.emptySet();
+        return foundTwinks;
     }
 
     public void deleteData(@NotNull final CommandSender sender, @NotNull final String[] args)
