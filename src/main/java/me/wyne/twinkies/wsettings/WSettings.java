@@ -7,7 +7,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
-public abstract class WSettings {
+/**
+ * Inherit to use {@link #getSetting(String)} and {@link #setSetting(String, Object)} directly for this object or use static method variants.
+ */
+public class WSettings {
 
     /**
      * Get {@link Setting} value from inheritor by {@link Setting} field name or by {@link SettingReference}.
@@ -17,7 +20,19 @@ public abstract class WSettings {
      */
     @Nullable
     public <SettingType> SettingType getSetting(@NotNull final String setting) {
-        for (Field field : getClass().getDeclaredFields())
+        return WSettings.getSetting(this, setting);
+    }
+
+    /**
+     * Get {@link Setting} value from given settingsObject by {@link Setting} field name or by {@link SettingReference}.
+     * @param settingsObject {@link Object} to get {@link Setting} from
+     * @param setting {@link Setting} field name of {@link SettingReference}
+     * @return {@link Setting} value
+     * @param <SettingType> {@link Setting} value type
+     */
+    @Nullable
+    public static <SettingType> SettingType getSetting(@NotNull final Object settingsObject, @NotNull final String setting) {
+        for (Field field : settingsObject.getClass().getDeclaredFields())
         {
             if (!field.isAnnotationPresent(Setting.class))
                 continue;
@@ -27,7 +42,7 @@ public abstract class WSettings {
                 {
                     field.setAccessible(true);
                     try {
-                        return (SettingType) field.get(this);
+                        return (SettingType) field.get(settingsObject);
                     } catch (IllegalAccessException e) {
                         WLog.error("Произошла ошибка при попытке получить настройку '" + setting + "'");
                         return null;
@@ -40,7 +55,7 @@ public abstract class WSettings {
                 {
                     field.setAccessible(true);
                     try {
-                        return (SettingType) field.get(this);
+                        return (SettingType) field.get(settingsObject);
                     } catch (IllegalAccessException e) {
                         WLog.error("Произошла ошибка при попытке получить настройку '" + setting + "'");
                         return null;
@@ -59,7 +74,19 @@ public abstract class WSettings {
      */
     @NotNull
     public Component setSetting(@NotNull final String setting, @NotNull final Object newValue) {
-        for (Field field : getClass().getDeclaredFields())
+        return WSettings.setSetting(this, setting, newValue);
+    }
+
+    /**
+     * Get {@link Setting} from given settingsObject by {@link Setting} field name or by {@link SettingReference} and then set new value.
+     * @param settingsObject {@link Object} to get {@link Setting} from
+     * @param setting {@link Setting} field name of {@link SettingReference}
+     * @param newValue New {@link Setting} value
+     * @return {@link Setting} setMessage as component
+     */
+    @NotNull
+    public static Component setSetting(@NotNull final Object settingsObject, @NotNull final String setting, @NotNull final Object newValue) {
+        for (Field field : settingsObject.getClass().getDeclaredFields())
         {
             if (!field.isAnnotationPresent(Setting.class))
                 continue;
@@ -69,7 +96,7 @@ public abstract class WSettings {
                 {
                     try {
                         field.setAccessible(true);
-                        field.set(this, newValue);
+                        field.set(settingsObject, newValue);
                     } catch (IllegalAccessException e) {
                         WLog.error("Произошла ошибка при попытке установить настройку '" + setting + "'");
                         return Component.empty();
@@ -83,7 +110,7 @@ public abstract class WSettings {
                 {
                     try {
                         field.setAccessible(true);
-                        field.set(this, newValue);
+                        field.set(settingsObject, newValue);
                     } catch (IllegalAccessException e) {
                         WLog.error("Произошла ошибка при попытке установить настройку '" + setting + "'");
                         return Component.empty();

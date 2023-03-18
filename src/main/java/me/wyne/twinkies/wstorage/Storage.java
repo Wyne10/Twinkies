@@ -22,7 +22,7 @@ public interface Storage {
     void loadData();
 
     /**
-     * Get element from {@link HashMap}.
+     * Get element from {@link HashMap}. May be used to add extra logic to data query.
      * HashMap is used because data is often stored as key:value.
      * @param data {@link HashMap} to get element from
      * @param key {@link HashMap} key to get element from
@@ -33,7 +33,7 @@ public interface Storage {
     @Nullable
     <KeyType, ValType> ValType get(@NotNull final HashMap<KeyType, ValType> data, @NotNull final KeyType key);
     /**
-     * Get {@link Collection} from {@link HashMap}.
+     * Get {@link Collection} from {@link HashMap}. May be used to add extra logic to data query.
      * HashMap is used because data is often stored as key:value.
      * @param data {@link HashMap} to get {@link Collection} from
      * @param key {@link HashMap} key to get {@link Collection} from

@@ -61,6 +61,7 @@ public final class LogMessage {
         return new Builder(logMessage);
     }
 
+    @Contract("-> new")
     @NotNull
     public Builder toBuilder()
     {

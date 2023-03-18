@@ -8,13 +8,21 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Inherit to automatically register config {@link Object} or use static {@link #registerConfigObject(Object)} method.
+ */
 public class WConfig {
 
     private static final Set<Object> registeredConfigObjects = new HashSet<>();
 
+    public WConfig()
+    {
+        WConfig.registerConfigObject(this);
+    }
+
     /**
      * Registered objects will be reloaded on {@link #reloadConfigObjects(FileConfiguration)}.
-     * @param object Object to register
+     * @param object {@link Object} to register
      */
     public static void registerConfigObject(@NotNull final Object object)
     {
@@ -23,7 +31,7 @@ public class WConfig {
 
     /**
      * Load data from {@link FileConfiguration} to registered objects.
-     * @param config Config to load data from
+     * @param config {@link FileConfiguration} to load data from
      */
     public static void reloadConfigObjects(@NotNull final FileConfiguration config) {
         try
