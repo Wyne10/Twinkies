@@ -2,12 +2,9 @@ package me.wyne.twinkies.notifications;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.wyne.twinkies.Twinkies;
-import me.wyne.twinkies.extension.ComponentExtensions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
