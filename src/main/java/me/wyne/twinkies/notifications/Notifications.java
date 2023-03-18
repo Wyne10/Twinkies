@@ -2,9 +2,12 @@ package me.wyne.twinkies.notifications;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.wyne.twinkies.Twinkies;
+import me.wyne.twinkies.extension.ComponentExtensions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -41,28 +44,34 @@ public class Notifications {
                 .append(Component.text("'"))
                 .appendNewline()
                 .append(Component.text("Никнеймы:"))
+                .color(NamedTextColor.BLUE)
                 .appendNewline();
 
-        if (plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerNicknames(), player.getUniqueId()) != null)
+        if (plugin.getPlayerStorage().playerNicknames().containsKey(player.getUniqueId()))
         {
-            for (String nickname : plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerNicknames(), player.getUniqueId()))
-            {
-                playerInfo = playerInfo.append(Component.text(nickname)).appendNewline();
-            }
+            playerInfo = ComponentExtensions.appendCollection(playerInfo, plugin.getPlayerStorage().playerNicknames().get(player.getUniqueId()), Style.style(NamedTextColor.WHITE));
         }
 
-        playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).appendNewline();
+        playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).color(NamedTextColor.BLUE).appendNewline();
 
-        if (plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerIps(), player.getUniqueId()) != null)
+        if (plugin.getPlayerStorage().playerIps().containsKey(player.getUniqueId()))
         {
-            int i = 0;
-            for (String ip : plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerIps(), player.getUniqueId()))
-            {
-                playerInfo = playerInfo.append(Component.text(ip));
-                if (i != plugin.getPlayerStorage().getCollection(plugin.getPlayerStorage().playerIps(), player.getUniqueId()).size() - 1)
-                    playerInfo = playerInfo.appendNewline();
-                i++;
-            }
+            playerInfo = ComponentExtensions.appendCollection(playerInfo, plugin.getPlayerStorage().playerIps().get(player.getUniqueId()), Style.style(NamedTextColor.WHITE));
+        }
+
+        playerInfo = playerInfo.appendNewline();
+
+        if (plugin.getPlayerStorage().playerLastNickname().containsKey(player.getUniqueId()))
+        {
+            playerInfo = playerInfo.append(Component.text("Последний никнейм: ").color(NamedTextColor.BLUE));
+            playerInfo = playerInfo.append(Component.text(plugin.getPlayerStorage().playerLastNickname().get(player.getUniqueId())).color(NamedTextColor.WHITE));
+            playerInfo = playerInfo.appendNewline();
+        }
+
+        if (plugin.getPlayerStorage().playerLastIp().containsKey(player.getUniqueId()))
+        {
+            playerInfo = playerInfo.append(Component.text("Последний IP адрес: ").color(NamedTextColor.BLUE));
+            playerInfo = playerInfo.append(Component.text(plugin.getPlayerStorage().playerLastIp().get(player.getUniqueId())).color(NamedTextColor.WHITE));
         }
 
         return playerInfo;

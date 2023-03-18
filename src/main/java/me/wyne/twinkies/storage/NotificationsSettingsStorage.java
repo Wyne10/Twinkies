@@ -13,7 +13,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -56,6 +55,7 @@ public class NotificationsSettingsStorage extends JsonStorage {
         }
     }
 
+    @NotNull
     public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
         if (!sender.hasPermission("twinkies.notifications"))

@@ -7,12 +7,16 @@ author: Wyne
 website: https://github.com/Wyne10
 commands:
   twinkies:
+    aliases:
+      - tw
 permissions:
   twinkies.*:
     default: op
   twinkies.notifications:
     description: Allows player to receive notifications
   twinkies.playerData:
-    description: Allows player to read and modify saved player data
+    description: Allows player to access saved player data
+    children:
+      twinkies.playerDataMod: true
   twinkies.logging:
     description: Allows player to set logging settings

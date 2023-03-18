@@ -12,6 +12,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -88,6 +89,7 @@ public class PlayerStorage extends JsonStorage {
         });
     }
 
+    @NotNull
     public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
         if (!sender.hasPermission("twinkies.playerData"))
@@ -129,7 +131,8 @@ public class PlayerStorage extends JsonStorage {
         if (args.length == 4 && args[0].equalsIgnoreCase("data"))
         {
             result.add("find");
-            result.add("delete");
+            if (sender.hasPermission("twinkies.playerDataMod"))
+                result.add("delete");
         }
 
         return result;
@@ -147,7 +150,10 @@ public class PlayerStorage extends JsonStorage {
         {
             sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
             WLog.error("Произошла ошибка при попытке получить данные о игроке '" + args[1] + "'");
-            WLog.error("Игрок: '" + sender.getName() + "'");
+            if (sender instanceof Player)
+                WLog.error("Игрок: '" + sender.getName() + "'");
+            else
+                WLog.error("Запрос был выполнен из консоли");
             return;
         }
 
@@ -185,14 +191,14 @@ public class PlayerStorage extends JsonStorage {
 
         if (playerLastNickname.containsKey(player.getUniqueId()))
         {
-            playerInfo = playerInfo.append(Component.text("Последний никнейм: ").color(NamedTextColor.BLUE)).appendSpace();
+            playerInfo = playerInfo.append(Component.text("Последний никнейм: ").color(NamedTextColor.BLUE));
             playerInfo = playerInfoAppend(playerInfo, args[1], playerLastNickname.get(player.getUniqueId()), "никнейм");
             playerInfo = playerInfo.appendNewline();
         }
 
         if (playerLastIp.containsKey(player.getUniqueId()))
         {
-            playerInfo = playerInfo.append(Component.text("Последний IP адрес: ").color(NamedTextColor.BLUE)).appendSpace();
+            playerInfo = playerInfo.append(Component.text("Последний IP адрес: ").color(NamedTextColor.BLUE));
             playerInfo = playerInfoAppend(playerInfo, args[1], playerLastIp.get(player.getUniqueId()), "IP адрес");
         }
 
