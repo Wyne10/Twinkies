@@ -192,6 +192,7 @@ public class PlayerStorage extends JsonStorage {
         {
             sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
             WLog.error("Произошла ошибка при попытке получить данные о игроке '" + args[1] + "'");
+            WLog.error("Игрок '" + args[1] + "' не найден");
             if (sender instanceof Player)
                 WLog.error("Игрок: '" + sender.getName() + "'");
             else
@@ -218,5 +219,70 @@ public class PlayerStorage extends JsonStorage {
                 .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы удалить этот IP адрес").color(NamedTextColor.RED)))
                 .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + ip + " delete")))
         ));
+    }
+
+    public void deleteData(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.playerDataMod"))
+            return;
+        if (args.length != 4)
+            return;
+        if (!args[0].equalsIgnoreCase("data") || !args[3].equalsIgnoreCase("delete"))
+            return;
+        if (!Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore())
+        {
+            sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
+            WLog.error("Произошла ошибка при попытке получить удалить данные о игроке '" + args[1] + "'");
+            WLog.error("Игрок '" + args[1] + "' не найден");
+            if (sender instanceof Player)
+                WLog.error("Игрок: '" + sender.getName() + "'");
+            else
+                WLog.error("Запрос был выполнен из консоли");
+            return;
+        }
+
+        UUID playerUUID = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
+
+        boolean deleted = false;
+
+        if (playerLastNickname.containsKey(playerUUID) && playerLastNickname.get(playerUUID).equalsIgnoreCase(args[2]))
+        {
+            remove(playerLastNickname, playerUUID, "last-nickname");
+            deleted = true;
+        }
+        if (getCollection(playerNicknames, playerUUID).contains(args[2]))
+        {
+            removeCollection(playerNicknames, playerUUID, args[2], "nicknames");
+            deleted = true;
+        }
+
+        if (playerLastIp.containsKey(playerUUID) && playerLastIp.get(playerUUID).equalsIgnoreCase(args[2]))
+        {
+            remove(playerLastIp, playerUUID, "last-ip");
+            deleted = true;
+        }
+        if (getCollection(playerIps, playerUUID).contains(args[2]))
+        {
+            removeCollection(playerIps, playerUUID, args[2], "ips");
+            deleted = true;
+        }
+
+        if (!deleted)
+        {
+            sender.sendMessage(Component.text("Значение '").append(Component.text(args[2])).append(Component.text("' игрока '")).append(Component.text(args[1])).append(Component.text("' не найдено!")).color(NamedTextColor.RED));
+            WLog.error("Произошла ошибка при попытке удалить данные о игроке '" + args[1] + "'");
+            WLog.error("Значение '" + args[2] + "' не найдено");
+            if (sender instanceof Player)
+                WLog.error("Игрок: '" + sender.getName() + "'");
+            else
+                WLog.error("Запрос был выполнен из консоли");
+        }
+        else {
+            sender.sendMessage(Component.text("Значение '").append(Component.text(args[2])).append(Component.text("' игрока '")).append(Component.text(args[1])).append(Component.text("' удалено.")).color(NamedTextColor.GREEN));
+            if (sender instanceof Player)
+                WLog.info("Значение '" + args[2] + "' игрока '" + args[1] + "' удалено игроком '" + sender.getName() + "'");
+            else
+                WLog.info("Значение '" + args[2] + "' игрока '" + args[1] + "' удалено консолью");
+        }
     }
 }

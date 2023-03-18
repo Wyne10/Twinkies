@@ -123,6 +123,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args)
     {
         playerStorage.showDataManager(sender, args);
+        playerStorage.deleteData(sender, args);
 
         if (!(sender instanceof Player))
             return true;
