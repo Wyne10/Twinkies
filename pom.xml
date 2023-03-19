@@ -89,25 +89,21 @@
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-config</artifactId>
             <version>1.0.0</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-log</artifactId>
             <version>1.0.0</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-settings</artifactId>
             <version>1.0.0</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-storage</artifactId>
             <version>1.0.0</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

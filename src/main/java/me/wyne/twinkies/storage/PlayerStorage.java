@@ -273,6 +273,7 @@ public class PlayerStorage extends JsonStorage {
                         searchResult = searchResult.append(foundTwink);
                         if (i != foundTwinks.size() - 1)
                             searchResult = searchResult.appendNewline();
+                        i++;
                     }
                 }
                 i = 0;
@@ -320,6 +321,7 @@ public class PlayerStorage extends JsonStorage {
                         searchResult = searchResult.append(foundTwink);
                         if (i != foundTwinks.size() - 1)
                             searchResult = searchResult.appendNewline();
+                        i++;
                     }
                 }
                 else
@@ -377,6 +379,7 @@ public class PlayerStorage extends JsonStorage {
                     searchResult = searchResult.append(foundTwink);
                     if (i != foundTwinks.size() - 1)
                         searchResult = searchResult.appendNewline();
+                    i++;
                 }
             }
             i = 0;

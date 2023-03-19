@@ -42,12 +42,6 @@ public class JoinListener implements Listener {
 
         plugin.getNotificationsSettingsStorage().initializePlayer(e.getPlayer());
 
-        if (!p.hasPlayedBefore())
-        {
-            WLog.log(LogMessage.builder(notifConfig.getRegister()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logRegister());
-            Notifications.sendNotification(p, notifConfig.getRegister(), NotificationType.REGISTER);
-        }
-
         // Save player if he isn't fully in database
         if (!storage.isPlayerSaved(p))
         {
@@ -55,6 +49,12 @@ public class JoinListener implements Listener {
             storage.save(storage.playerLastIp(), uuid, ip, "last-ip");
             storage.saveCollection(storage.playerNicknames(), uuid, p.getName(), "nicknames");
             storage.saveCollection(storage.playerIps(), uuid, ip, "ips");
+        }
+
+        if (!p.hasPlayedBefore())
+        {
+            WLog.log(LogMessage.builder(notifConfig.getRegister()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logRegister());
+            Notifications.sendNotification(p, notifConfig.getRegister(), NotificationType.REGISTER);
         }
         else
         {
@@ -77,6 +77,7 @@ public class JoinListener implements Listener {
             {
                 WLog.log(LogMessage.builder(notifConfig.getChangeNick()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logChangeNick());
                 Notifications.sendNotification(p, notifConfig.getChangeNick(), NotificationType.CHANGE_NICK);
+                storage.save(storage.playerLastNickname(), uuid, p.getName(), "last-nickname");
             }
         }
 
@@ -95,6 +96,7 @@ public class JoinListener implements Listener {
             {
                 WLog.log(LogMessage.builder(notifConfig.getChangeIp()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logChangeIp());
                 Notifications.sendNotification(p, notifConfig.getChangeIp(), NotificationType.CHANGE_IP);
+                storage.save(storage.playerLastIp(), uuid, ip, "last-ip");
             }
         }
 
