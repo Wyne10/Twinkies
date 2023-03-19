@@ -1,11 +1,11 @@
 package me.wyne.twinkies.logging;
 
-import me.wyne.twinkies.wconfig.ConfigField;
-import me.wyne.twinkies.wconfig.WConfig;
-import me.wyne.twinkies.wlog.WLog;
-import me.wyne.twinkies.wlog.WLogConfig;
-import me.wyne.twinkies.wsettings.Setting;
-import me.wyne.twinkies.wsettings.WSettings;
+import me.wyne.wutils.config.ConfigField;
+import me.wyne.wutils.config.WConfig;
+import me.wyne.wutils.log.WLog;
+import me.wyne.wutils.log.WLogConfig;
+import me.wyne.wutils.settings.Setting;
+import me.wyne.wutils.settings.WSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;

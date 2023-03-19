@@ -5,13 +5,10 @@ import me.wyne.twinkies.logging.LoggingConfig;
 import me.wyne.twinkies.notifications.Notifications;
 import me.wyne.twinkies.placeholderAPI.PlayerPlaceholders;
 import me.wyne.twinkies.storage.NotificationsSettingsStorage;
-import me.wyne.twinkies.wlog.WLog;
 import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.storage.PlayerStorage;
-import me.wyne.twinkies.wconfig.WConfig;
-import me.wyne.twinkies.wsettings.WSettings;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import me.wyne.wutils.config.WConfig;
+import me.wyne.wutils.log.WLog;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -24,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -71,6 +67,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
 
         playerPlaceholders.register();
 
+        // Initialize storages
         playerStorage.createStorageFolder();
         notificationsSettingsStorage.createStorageFolder();
         playerStorage.createStorageFile();

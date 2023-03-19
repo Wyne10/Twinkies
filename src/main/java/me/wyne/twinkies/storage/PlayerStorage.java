@@ -2,8 +2,8 @@ package me.wyne.twinkies.storage;
 
 import com.google.gson.*;
 import me.wyne.twinkies.Twinkies;
-import me.wyne.twinkies.wlog.WLog;
-import me.wyne.twinkies.wstorage.JsonStorage;
+import me.wyne.wutils.log.WLog;
+import me.wyne.wutils.storage.JsonStorage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -407,7 +407,7 @@ public class PlayerStorage extends JsonStorage {
     }
 
     @NotNull
-    private Set<Component> searchTwinksByNick(@NotNull final UUID playerUUID, final String searchNick)
+    private Set<Component> searchTwinksByNick(@NotNull final UUID playerUUID, @NotNull final String searchNick)
     {
         Set<Component> foundTwinks = new HashSet<>();
 
@@ -432,7 +432,7 @@ public class PlayerStorage extends JsonStorage {
     }
 
     @NotNull
-    private Set<Component> predictTwinksByNick(@NotNull final UUID playerUUID, final String predictNick)
+    private Set<Component> predictTwinksByNick(@NotNull final UUID playerUUID, @NotNull final String predictNick)
     {
         Set<Component> predictedTwinks = new HashSet<>();
 

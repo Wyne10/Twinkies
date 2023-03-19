@@ -1,7 +1,7 @@
 package me.wyne.twinkies.notifications;
 
-import me.wyne.twinkies.wconfig.ConfigField;
-import me.wyne.twinkies.wconfig.WConfig;
+import me.wyne.wutils.config.ConfigField;
+import me.wyne.wutils.config.WConfig;
 
 public class NotificationsConfig extends WConfig {
 
