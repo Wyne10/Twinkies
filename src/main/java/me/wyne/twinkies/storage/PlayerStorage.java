@@ -91,6 +91,18 @@ public class PlayerStorage extends JsonStorage {
     }
 
     @NotNull
+    private OfflinePlayer getOfflinePlayerCase(@NotNull final String playerName)
+    {
+        for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers())
+        {
+            if (offlinePlayer.getName().equals(playerName))
+                return offlinePlayer;
+        }
+
+        return Bukkit.getOfflinePlayer(playerName);
+    }
+
+    @NotNull
     public Component getPlayerInfo(@NotNull final OfflinePlayer player, @NotNull final Function<String, Component> appendNick, @NotNull final Function<String, Component> appendIp)
     {
         Component playerInfo = Component.text("Информация о игроке '")
@@ -168,8 +180,8 @@ public class PlayerStorage extends JsonStorage {
             result.add("search");
             if (sender.hasPermission("twinkies.playerDataMod"))
                 result.add("delete");
-            result.addAll(getCollection(playerNicknames, Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
-            result.addAll(getCollection(playerIps, Bukkit.getOfflinePlayer(args[1]).getUniqueId()));
+            result.addAll(getCollection(playerNicknames, getOfflinePlayerCase(args[1]).getUniqueId()));
+            result.addAll(getCollection(playerIps, getOfflinePlayerCase(args[1]).getUniqueId()));
         }
 
         if (args.length == 4 && args[0].equalsIgnoreCase("data"))
@@ -190,7 +202,7 @@ public class PlayerStorage extends JsonStorage {
             return;
         if (!args[0].equalsIgnoreCase("data"))
             return;
-        if (!playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()) && !playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
+        if (!playerNicknames.containsKey(getOfflinePlayerCase(args[1]).getUniqueId()) && !playerIps.containsKey(getOfflinePlayerCase(args[1]).getUniqueId()))
         {
             sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
             WLog.error("Произошла ошибка при попытке получить данные о игроке '" + args[1] + "'");
@@ -202,7 +214,7 @@ public class PlayerStorage extends JsonStorage {
             return;
         }
 
-        OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
+        OfflinePlayer player = getOfflinePlayerCase(args[1]);
 
         sender.sendMessage(getPlayerInfo(player, (nickname) ->
                 Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
@@ -236,7 +248,7 @@ public class PlayerStorage extends JsonStorage {
             return;
         if (!args[0].equalsIgnoreCase("data"))
             return;
-        if (!playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()) && !playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
+        if (!playerNicknames.containsKey(getOfflinePlayerCase(args[1]).getUniqueId()) && !playerIps.containsKey(getOfflinePlayerCase(args[1]).getUniqueId()))
         {
             sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
             WLog.error("Произошла ошибка при попытке поиска твинков игрока '" + args[1] + "'");
@@ -248,7 +260,7 @@ public class PlayerStorage extends JsonStorage {
             return;
         }
 
-        UUID playerUUID = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
+        UUID playerUUID = getOfflinePlayerCase(args[1]).getUniqueId();
 
         if (args.length == 4 && args[3].equalsIgnoreCase("search"))
         {
@@ -440,6 +452,7 @@ public class PlayerStorage extends JsonStorage {
         Set<Component> predictedTwinks = new HashSet<>();
 
         Set<String> predictSplitRegex = new HashSet<>();
+        predictSplitRegex.add("");
         predictSplitRegex.add("(?=\\p{Upper})");
         predictSplitRegex.add("_+");
         predictSplitRegex.add("\\.+");
@@ -457,7 +470,7 @@ public class PlayerStorage extends JsonStorage {
                 {
                     for (String compareNick : getCollection(playerNicknames, compareUUID))
                     {
-                        if (compareNick.contains(nickPart) && !compareNick.equals(nickPart))
+                        if (compareNick.toLowerCase().contains(nickPart.toLowerCase()) && !compareNick.equals(nickPart))
                             predictedTwinks.add(Component.empty()
                                     .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))))
                                     .append(Component.text(" ("))
@@ -504,7 +517,7 @@ public class PlayerStorage extends JsonStorage {
             return;
         if (!args[0].equalsIgnoreCase("data"))
             return;
-        if (!playerNicknames.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()) && !playerIps.containsKey(Bukkit.getOfflinePlayer(args[1]).getUniqueId()))
+        if (!playerNicknames.containsKey(getOfflinePlayerCase(args[1]).getUniqueId()) && !playerIps.containsKey(getOfflinePlayerCase(args[1]).getUniqueId()))
         {
             sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
             WLog.error("Произошла ошибка при попытке удалить данные о игроке '" + args[1] + "'");
@@ -516,7 +529,7 @@ public class PlayerStorage extends JsonStorage {
             return;
         }
 
-        UUID playerUUID = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
+        UUID playerUUID = getOfflinePlayerCase(args[1]).getUniqueId();
 
         if (args.length == 4 && args[3].equalsIgnoreCase("delete"))
         {
