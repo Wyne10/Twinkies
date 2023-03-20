@@ -1,9 +1,9 @@
 package me.wyne.twinkies.notifications;
 
 import me.wyne.wutils.settings.Setting;
-import me.wyne.wutils.settings.WSettings;
+import me.wyne.wutils.settings.Settings;
 
-public class NotificationsSettings extends WSettings {
+public class NotificationsSettings extends Settings {
 
     @Setting(setMessage = "Уведомления о регистрации")
     private boolean sendRegister = true;

@@ -1,14 +1,13 @@
 package me.wyne.twinkies.logging;
 
 import me.wyne.wutils.config.ConfigField;
-import me.wyne.wutils.config.WConfig;
-import me.wyne.wutils.log.WLog;
-import me.wyne.wutils.log.WLogConfig;
+import me.wyne.wutils.config.Config;
+import me.wyne.wutils.log.Log;
+import me.wyne.wutils.log.LogConfig;
 import me.wyne.wutils.settings.Setting;
-import me.wyne.wutils.settings.WSettings;
+import me.wyne.wutils.settings.Settings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +16,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoggingConfig extends WConfig implements WLogConfig {
+public class LoggingConfig extends Config implements LogConfig {
 
     @Setting(setMessage = "Логирование ошибок")
     @ConfigField(path = "log-err")
@@ -135,27 +134,27 @@ public class LoggingConfig extends WConfig implements WLogConfig {
             return;
         if (!args[0].equalsIgnoreCase("logging"))
             return;
-        if (WSettings.<Boolean>getSetting(this, args[1]) == null)
+        if (Settings.<Boolean>getSetting(this, args[1]) == null)
             return;
 
-        Component setMessage = WSettings.setSetting(this, args[1], !WSettings.<Boolean>getSetting(this, args[1]));
+        String setMessage = Settings.setSetting(this, args[1], !Settings.<Boolean>getSetting(this, args[1]));
 
-        if (WSettings.<Boolean>getSetting(this, args[1]))
+        if (Settings.<Boolean>getSetting(this, args[1]))
         {
-            sender.sendMessage(setMessage.append(Component.text(" включено.").color(NamedTextColor.GREEN)));
+            sender.sendMessage(Component.text(setMessage).append(Component.text(" включено.").color(NamedTextColor.GREEN)));
             if (sender instanceof Player)
-                WLog.info("Игрок '" + sender.getName() + "' включил " + PlainTextComponentSerializer.plainText().serialize(setMessage).toLowerCase());
+                Log.info("Игрок '" + sender.getName() + "' включил " + setMessage.toLowerCase());
             else
-                WLog.info("Консоль включила " + PlainTextComponentSerializer.plainText().serialize(setMessage).toLowerCase());
+                Log.info("Консоль включила " + setMessage.toLowerCase());
         }
 
         else
         {
-            sender.sendMessage(setMessage.append(Component.text(" отключено.").color(NamedTextColor.RED)));
+            sender.sendMessage(Component.text(setMessage).append(Component.text(" отключено.").color(NamedTextColor.RED)));
             if (sender instanceof Player)
-                WLog.info("Игрок '" + sender.getName() + "' отключил " + PlainTextComponentSerializer.plainText().serialize(setMessage).toLowerCase());
+                Log.info("Игрок '" + sender.getName() + "' отключил " + setMessage.toLowerCase());
             else
-                WLog.info("Консоль отключила " + PlainTextComponentSerializer.plainText().serialize(setMessage).toLowerCase());
+                Log.info("Консоль отключила " + setMessage.toLowerCase());
         }
     }
 }

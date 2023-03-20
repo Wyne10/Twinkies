@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import me.wyne.twinkies.Twinkies;
 import me.wyne.twinkies.notifications.NotificationType;
 import me.wyne.twinkies.notifications.NotificationsSettings;
-import me.wyne.wutils.log.WLog;
+import me.wyne.wutils.log.Log;
 import me.wyne.wutils.storage.JsonStorage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -32,16 +32,16 @@ public class NotificationsSettingsStorage extends JsonStorage {
     public void loadData() {
         executorService.execute(() -> {
             try {
-                WLog.info("Загрузка данных из файла '" + storageFile.getName() + "'...");
+                Log.info("Загрузка данных из файла '" + storageFile.getName() + "'...");
                 JsonObject playerObjects = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
                 for (Map.Entry<String, JsonElement> playerObject : playerObjects.entrySet())
                 {
                     playerSettings.put(UUID.fromString(playerObject.getKey()), gson.fromJson(playerObject.getValue(), NotificationsSettings.class));
                 }
-                WLog.info("Данные из файла '" + storageFile.getName() + "' загружены");
+                Log.info("Данные из файла '" + storageFile.getName() + "' загружены");
             } catch (FileNotFoundException e) {
-                WLog.error("Произошла ошибка при загрузке данных из файла '" + storageFile.getName() + "'");
-                WLog.error(e.getMessage());
+                Log.error("Произошла ошибка при загрузке данных из файла '" + storageFile.getName() + "'");
+                Log.error(e.getMessage());
             }
         });
     }
@@ -97,12 +97,12 @@ public class NotificationsSettingsStorage extends JsonStorage {
             return;
 
         NotificationsSettings settings = playerSettings.get(((Player)sender).getUniqueId());
-        Component setMessage = settings.setSetting(args[1], !settings.<Boolean>getSetting(args[1]));
+        String setMessage = settings.setSetting(args[1], !settings.<Boolean>getSetting(args[1]));
 
         if (settings.<Boolean>getSetting(args[1]))
-            sender.sendMessage(setMessage.append(Component.text(" включены.").color(NamedTextColor.GREEN)));
+            sender.sendMessage(Component.text(setMessage).append(Component.text(" включены.").color(NamedTextColor.GREEN)));
         else
-            sender.sendMessage(setMessage.append(Component.text(" отключены.").color(NamedTextColor.RED)));
+            sender.sendMessage(Component.text(setMessage).append(Component.text(" отключены.").color(NamedTextColor.RED)));
 
         save(null, ((Player)sender).getUniqueId(), settings.<Boolean>getSetting(args[1]), args[1]);
     }

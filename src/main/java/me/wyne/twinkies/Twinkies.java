@@ -7,8 +7,8 @@ import me.wyne.twinkies.placeholderAPI.PlayerPlaceholders;
 import me.wyne.twinkies.storage.NotificationsSettingsStorage;
 import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.storage.PlayerStorage;
-import me.wyne.wutils.config.WConfig;
-import me.wyne.wutils.log.WLog;
+import me.wyne.wutils.config.Config;
+import me.wyne.wutils.log.Log;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -49,16 +49,16 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
         this.saveDefaultConfig();
 
         // Initialize logger
-        WLog.registerLogger(getLogger());
-        WLog.registerConfig(loggingConfig);
-        WLog.registerLogDirectory(new File(getDataFolder(), "logs"));
-        WLog.registerWriteThread(Executors.newSingleThreadExecutor());
+        Log.registerLogger(getLogger());
+        Log.registerConfig(loggingConfig);
+        Log.registerLogDirectory(new File(getDataFolder(), "logs"));
+        Log.registerWriteThread(Executors.newSingleThreadExecutor());
 
         // Initialize notifications
         Notifications.registerPlugin(this);
 
         // Initialize configs
-        WConfig.reloadConfigObjects(getConfig());
+        Config.reloadConfigObjects(getConfig());
 
         Bukkit.getPluginManager().registerEvents(joinListener, this);
 
@@ -107,6 +107,8 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
 
         List<String> result = new ArrayList<>();
 
+        if (sender.isOp() && args.length == 1)
+            result.add("reload");
         result.addAll(loggingConfig.loggingTabComplete(sender, args));
         result.addAll(notificationsSettingsStorage.tabComplete(sender, args));
         result.addAll(playerStorage.tabComplete(sender, args));
@@ -117,6 +119,8 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args)
     {
+        if (sender.isOp() && args.length == 1 && args[0].equalsIgnoreCase("reload"))
+            Config.reloadConfigObjects(getConfig());
         playerStorage.showDataManager(sender, args);
         playerStorage.searchTwinks(sender, args);
         playerStorage.deleteData(sender, args);
