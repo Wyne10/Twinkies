@@ -14,6 +14,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
@@ -103,21 +104,30 @@ public class PlayerStorage extends JsonStorage {
     }
 
     @NotNull
-    public Component getComponent(@NotNull final HashMap<UUID, String> data, @NotNull final UUID playerUUID, @NotNull final Function<String, Component> appendComponent)
+    public Component getComponent(@NotNull final HashMap<UUID, String> data, @NotNull final UUID playerUUID, @Nullable final Function<String, Component> appendComponent)
     {
         if (data.containsKey(playerUUID))
-            return Component.text(get(data, playerUUID)).append(appendComponent.apply(get(data, playerUUID)));
+        {
+            if (appendComponent != null)
+                return Component.text(get(data, playerUUID)).color(NamedTextColor.WHITE).append(appendComponent.apply(get(data, playerUUID)));
+            else
+                return Component.text(get(data, playerUUID)).color(NamedTextColor.WHITE);
+        }
+
         return Component.empty();
     }
 
     @NotNull
-    public Set<Component> getComponentCollection(@NotNull final HashMap<UUID, Set<String>> data, @NotNull final UUID playerUUID, @NotNull final Function<String, Component> appendComponent)
+    public Set<Component> getComponentCollection(@NotNull final HashMap<UUID, Set<String>> data, @NotNull final UUID playerUUID, @Nullable final Function<String, Component> appendComponent)
     {
         Set<Component> collection = new HashSet<>();
 
         for (String element : getCollection(data, playerUUID))
         {
-            collection.add(Component.text(element).append(appendComponent.apply(element)));
+            if (appendComponent != null)
+                collection.add(Component.text(element).color(NamedTextColor.WHITE).append(appendComponent.apply(element)));
+            else
+                collection.add(Component.text(element).color(NamedTextColor.WHITE));
         }
 
         return collection;
@@ -138,11 +148,12 @@ public class PlayerStorage extends JsonStorage {
     }
 
     @NotNull
-    public Component getPlayerInfo(@NotNull final OfflinePlayer player, @NotNull final Function<String, Component> appendNick, @NotNull final Function<String, Component> appendIp)
+    public Component getPlayerInfo(@NotNull final OfflinePlayer player, @Nullable final Function<String, Component> appendNick, @Nullable final Function<String, Component> appendIp)
     {
         Component playerInfo = Component.text("Информация о игроке '")
                 .append(Component.text(player.getName()))
-                .append(Component.text("'"));
+                .append(Component.text("'"))
+                .color(NamedTextColor.BLUE);
 
         if (!getCollection(playerNicknames, player.getUniqueId()).isEmpty())
         {
@@ -279,38 +290,39 @@ public class PlayerStorage extends JsonStorage {
         return result;
     }
 
-    public void showDataManager(@NotNull final CommandSender sender, @NotNull final String[] args)
+    /**
+     * /twinkies data [playerName] - Показать информацию о игроке [playerName]
+     */
+    public void showData(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
         if (!sender.hasPermission("twinkies.playerData"))
             return;
         if (args.length != 2)
             return;
-        if (!args[0].equalsIgnoreCase("data"))
+        if (!args[0].equalsIgnoreCase("data") || args[1].equalsIgnoreCase("search"))
             return;
-        if (args[1].equalsIgnoreCase("search"))
-            return;
-        if (!playerNicknames.containsKey(getOfflinePlayerCase(args[1]).getUniqueId()) && !playerIps.containsKey(getOfflinePlayerCase(args[1]).getUniqueId()))
+        if (getCollection(playerNicknames, getOfflinePlayerCase(args[1]).getUniqueId()).isEmpty() ||  getCollection(playerIps, getOfflinePlayerCase(args[1]).getUniqueId()).isEmpty())
         {
-            sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
-            Log.error("Произошла ошибка при попытке получить данные о игроке '" + args[1] + "'");
-            Log.error("Игрок '" + args[1] + "' не найден");
+            sender.sendMessage(Component.text("Информация о игроке '").append(Component.text(args[1]).append(Component.text("' не найдена!"))).color(NamedTextColor.RED));
+            Log.warn("Произошла ошибка при попытке получить данные о игроке '" + args[1] + "'");
+            Log.warn("Информация о игроке '" + args[1] + "' не найдена");
             if (sender instanceof Player)
-                Log.error("Исполнитель запроса: '" + sender.getName() + "'");
+                Log.warn("Исполнитель запроса: '" + sender.getName() + "'");
             else
-                Log.error("Запрос был выполнен из консоли");
+                Log.warn("Запрос был выполнен из консоли");
             return;
         }
 
         OfflinePlayer player = getOfflinePlayerCase(args[1]);
 
-        sender.sendMessage(getPlayerInfo(player, (nickname) ->
+        sender.sendMessage(getPlayerInfo(player, (nick) ->
                 Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
                 .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому никнейму").color(NamedTextColor.GREEN)))
-                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + nickname + " search"))
+                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + nick + " search"))
                 .appendSpace()
                 .append(Component.text("[✖]").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
                 .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы удалить этот никнейм").color(NamedTextColor.RED)))
-                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + nickname + " delete"))),
+                .clickEvent(ClickEvent.suggestCommand("/twinkies data " + args[1] + " " + nick + " delete"))),
                 (ip) ->
                 Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
                 .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому IP адресу").color(NamedTextColor.GREEN)))
@@ -325,6 +337,149 @@ public class PlayerStorage extends JsonStorage {
             Log.info("Игрок '" + sender.getName() + "' запросил данные о игроке '" + args[1] + "'");
         else
             Log.info("Консоль запросила данные о игроке '" + args[1] + "'");
+    }
+
+    /**
+     * /twinkies data search - Поиск твинков всех игроков
+     * /twinkies data [playerName] search - Найти твинки игрока [playerName] по всем сохранённым никам и ip
+     */
+    public void allSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+
+    }
+
+    /**
+     * /twinkies data [name] search - Найти игроков использовавших указанный [name]
+     */
+    public void nameSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return;
+        if (args.length != 3)
+            return;
+        if (!args[0].equalsIgnoreCase("data") || !args[2].equalsIgnoreCase("search"))
+            return;
+
+        String searchNick = args[1];
+
+        Component searchResult = Component.text("Следующие игроки использовали ник '")
+                .append(Component.text(searchNick))
+                .append(Component.text("'"))
+                .color(NamedTextColor.BLUE);
+
+        boolean found = false;
+
+        for (UUID compareUUID : playerNicknames.keySet())
+        {
+            if (getCollection(playerNicknames, compareUUID).contains(searchNick))
+            {
+                found = true;
+                searchResult = searchResult.appendNewline()
+                        .append(Component.text(Bukkit.getOfflinePlayer(compareUUID).getName())
+                        .hoverEvent(HoverEvent.showText(getPlayerInfo(Bukkit.getOfflinePlayer(compareUUID), null, null))))
+                        .color(NamedTextColor.WHITE);
+            }
+        }
+
+        if (!found)
+            searchResult = Component.text("Игроки использовавшие никнейм '")
+                    .append(Component.text(searchNick))
+                    .append(Component.text("' не найдены!"))
+                    .color(NamedTextColor.RED);
+
+        sender.sendMessage(searchResult);
+
+        if (!found)
+        {
+            Log.warn("Игроки использовавшие никнейм '" + searchNick + "' не найдены");
+            if (sender instanceof Player)
+                Log.error("Исполнитель запроса: '" + sender.getName() + "'");
+            else
+                Log.error("Запрос был выполнен из консоли");
+        }
+        else
+        {
+            if (sender instanceof Player)
+                Log.error("Игрок '" + sender.getName() + "' запросил поиск игроков использовавших никнейм '" + searchNick + "'");
+            else
+                Log.error("Консоль запросила поиск игроков использовавших никнейм '" + searchNick + "'");
+        }
+    }
+
+    /**
+     * /twinkies data [ip] search - Найти игроков использовавших указанный [ip]
+     */
+    public void ipSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return;
+        if (args.length != 3)
+            return;
+        if (!args[0].equalsIgnoreCase("data") || !args[2].equalsIgnoreCase("search"))
+            return;
+
+        String searchIp = args[1];
+
+        Component searchResult = Component.text("Следующие игроки использовали IP адрес '")
+                .append(Component.text(searchIp))
+                .append(Component.text("'"))
+                .color(NamedTextColor.BLUE);
+
+        boolean found = false;
+
+        for (UUID compareUUID : playerIps.keySet())
+        {
+            if (getCollection(playerIps, compareUUID).contains(searchIp))
+            {
+                found = true;
+                searchResult = searchResult.appendNewline()
+                        .append(Component.text(Bukkit.getOfflinePlayer(compareUUID).getName())
+                                .hoverEvent(HoverEvent.showText(getPlayerInfo(Bukkit.getOfflinePlayer(compareUUID), null, null))))
+                        .color(NamedTextColor.WHITE);
+            }
+        }
+
+        if (!found)
+            searchResult = Component.text("Игроки использовавшие IP адрес'")
+                    .append(Component.text(searchIp))
+                    .append(Component.text("' не найдены!"))
+                    .color(NamedTextColor.RED);
+
+        sender.sendMessage(searchResult);
+
+        if (!found)
+        {
+            Log.warn("Игроки использовавшие никнейм '" + searchIp + "' не найдены");
+            if (sender instanceof Player)
+                Log.error("Исполнитель запроса: '" + sender.getName() + "'");
+            else
+                Log.error("Запрос был выполнен из консоли");
+        }
+        else
+        {
+            if (sender instanceof Player)
+                Log.error("Игрок '" + sender.getName() + "' запросил поиск игроков использовавших IP адрес '" + searchIp + "'");
+            else
+                Log.error("Консоль запросила поиск игроков использовавших IP адрес '" + searchIp + "'");
+        }
+    }
+
+    /**
+     * /twinkies data [playerName] [name/ip] search - Найти твинки игрока [playerName] по указанному [name/ip]
+     */
+    public void playerNameSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+
+    }
+
+    public void playerIpSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+
+    }
+
+    public void playerSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+
     }
 
     public void searchTwinks(@NotNull final CommandSender sender, @NotNull final String[] args)

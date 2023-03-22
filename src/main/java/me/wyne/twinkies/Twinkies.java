@@ -18,7 +18,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -118,7 +117,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     {
         if (sender.isOp() && args.length == 1 && args[0].equalsIgnoreCase("reload"))
             Config.reloadConfigObjects(getConfig());
-        playerStorage.showDataManager(sender, args);
+        playerStorage.showData(sender, args);
         playerStorage.searchTwinks(sender, args);
         playerStorage.deleteData(sender, args);
         loggingConfig.setLoggingSetting(sender, args);
