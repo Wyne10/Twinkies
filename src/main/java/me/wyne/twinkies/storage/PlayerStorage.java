@@ -103,50 +103,86 @@ public class PlayerStorage extends JsonStorage {
     }
 
     @NotNull
+    public Component getComponent(@NotNull final HashMap<UUID, String> data, @NotNull final UUID playerUUID, @NotNull final Function<String, Component> appendComponent)
+    {
+        if (data.containsKey(playerUUID))
+            return Component.text(get(data, playerUUID)).append(appendComponent.apply(get(data, playerUUID)));
+        return Component.empty();
+    }
+
+    @NotNull
+    public Set<Component> getComponentCollection(@NotNull final HashMap<UUID, Set<String>> data, @NotNull final UUID playerUUID, @NotNull final Function<String, Component> appendComponent)
+    {
+        Set<Component> collection = new HashSet<>();
+
+        for (String element : getCollection(data, playerUUID))
+        {
+            collection.add(Component.text(element).append(appendComponent.apply(element)));
+        }
+
+        return collection;
+    }
+
+    @NotNull
+    public Component appendComponentCollection(@NotNull Component component, @NotNull final Collection<Component> append)
+    {
+        int i = 0;
+        for (Component apeendComponent : append)
+        {
+            component = component.append(apeendComponent);
+            if (i != append.size() - 1)
+                component = component.appendNewline();
+            i++;
+        }
+        return component;
+    }
+
+    @NotNull
     public Component getPlayerInfo(@NotNull final OfflinePlayer player, @NotNull final Function<String, Component> appendNick, @NotNull final Function<String, Component> appendIp)
     {
         Component playerInfo = Component.text("Информация о игроке '")
                 .append(Component.text(player.getName()))
-                .append(Component.text("'"))
-                .appendNewline()
-                .append(Component.text("Никнеймы:"))
-                .color(NamedTextColor.BLUE)
-                .appendNewline();
+                .append(Component.text("'"));
 
-        for (String nickname : getCollection(playerNicknames, player.getUniqueId()))
+        if (!getCollection(playerNicknames, player.getUniqueId()).isEmpty())
         {
-            playerInfo = playerInfo.append(Component.text(nickname).color(NamedTextColor.WHITE)).append(appendNick.apply(nickname));
-            playerInfo = playerInfo.appendNewline();
+            playerInfo = playerInfo.appendNewline()
+                    .append(Component.text("Никнеймы:"))
+                    .color(NamedTextColor.BLUE)
+                    .appendNewline();
+            playerInfo = appendComponentCollection(playerInfo, getComponentCollection(playerNicknames, player.getUniqueId(), appendNick));
         }
 
-        playerInfo = playerInfo.appendNewline().append(Component.text("IP адреса:")).color(NamedTextColor.BLUE).appendNewline();
-
-        for (String ip : getCollection(playerIps, player.getUniqueId()))
+        if (!getCollection(playerIps, player.getUniqueId()).isEmpty())
         {
-            playerInfo = playerInfo.append(Component.text(ip).color(NamedTextColor.WHITE)).append(appendIp.apply(ip));
-            playerInfo = playerInfo.appendNewline();
+            playerInfo = playerInfo.appendNewline().appendNewline()
+                    .append(Component.text("IP адреса:"))
+                    .color(NamedTextColor.BLUE)
+                    .appendNewline();
+            playerInfo = appendComponentCollection(playerInfo, getComponentCollection(playerIps, player.getUniqueId(), appendIp));
         }
-
-        playerInfo = playerInfo.appendNewline();
 
         if (playerLastNickname.containsKey(player.getUniqueId()))
         {
-            playerInfo = playerInfo.append(Component.text("Последний никнейм: ")).color(NamedTextColor.BLUE);
-            playerInfo = playerInfo.append(Component.text(playerLastNickname.get(player.getUniqueId())).color(NamedTextColor.WHITE)).append(appendNick.apply(playerLastNickname.get(player.getUniqueId())));
-            playerInfo = playerInfo.appendNewline();
+            playerInfo = playerInfo.appendNewline().appendNewline()
+                    .append(Component.text("Последний никнейм: "))
+                    .color(NamedTextColor.BLUE);
+            playerInfo = playerInfo.append(getComponent(playerLastNickname, player.getUniqueId(), appendNick));
         }
 
         if (playerLastIp.containsKey(player.getUniqueId()))
         {
-            playerInfo = playerInfo.append(Component.text("Последний IP адрес: ").color(NamedTextColor.BLUE));
-            playerInfo = playerInfo.append(Component.text(playerLastIp.get(player.getUniqueId())).color(NamedTextColor.WHITE)).append(appendIp.apply(playerLastIp.get(player.getUniqueId())));
+            playerInfo = playerInfo.appendNewline().appendNewline()
+                    .append(Component.text("Последний IP адрес: "))
+                    .color(NamedTextColor.BLUE);
+            playerInfo = playerInfo.append(getComponent(playerLastIp, player.getUniqueId(), appendIp));
         }
 
         return playerInfo;
     }
 
     @NotNull
-    public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
+    public List<String> dataTabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
         if (!sender.hasPermission("twinkies.playerData"))
             return List.of();
@@ -154,19 +190,31 @@ public class PlayerStorage extends JsonStorage {
         List<String> result = new ArrayList<>();
 
         if (args.length == 1)
-        {
             result.add("data");
-        }
 
-        if (args.length == 2 && args[0].equalsIgnoreCase("data"))
-        {
-            Set<UUID> playerUUIDs = new HashSet<>(playerNicknames.keySet());
-            playerUUIDs.addAll(playerIps.keySet());
+        return result;
+    }
 
+    @NotNull
+    public List<String> searchTabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return List.of();
+
+        List<String> result = new ArrayList<>();
+        Set<UUID> playerUUIDs = new HashSet<>(playerNicknames.keySet());
+        playerUUIDs.addAll(playerIps.keySet());
+
+        if (args.length == 2 || args.length == 3 || args.length == 4)
             result.add("search");
 
+        if (args.length == 2)
+        {
             for (UUID playerUUID : playerUUIDs)
             {
+                if (Bukkit.getOfflinePlayer(playerUUID).getName() == null)
+                    continue;
+
                 if (args[1].isBlank())
                     result.add(Bukkit.getOfflinePlayer(playerUUID).getName());
                 else
@@ -177,20 +225,55 @@ public class PlayerStorage extends JsonStorage {
             }
         }
 
-        if (args.length == 3 && args[0].equalsIgnoreCase("data"))
+        if (args.length == 2 || args.length == 3)
         {
-            result.add("search");
-            if (sender.hasPermission("twinkies.playerDataMod"))
-                result.add("delete");
-            result.addAll(getCollection(playerNicknames, getOfflinePlayerCase(args[1]).getUniqueId()));
-            result.addAll(getCollection(playerIps, getOfflinePlayerCase(args[1]).getUniqueId()));
+            for (UUID playerUUID : playerUUIDs)
+            {
+                result.addAll(getCollection(playerNicknames, playerUUID));
+                result.addAll(getCollection(playerIps, playerUUID));
+            }
         }
 
-        if (args.length == 4 && args[0].equalsIgnoreCase("data"))
+        return result;
+    }
+
+    @NotNull
+    public List<String> deleteTabComplete(@NotNull final CommandSender sender, @NotNull final String[] args)
+    {
+        if (!sender.hasPermission("twinkies.playerDataMod"))
+            return List.of();
+
+        List<String> result = new ArrayList<>();
+        Set<UUID> playerUUIDs = new HashSet<>(playerNicknames.keySet());
+        playerUUIDs.addAll(playerIps.keySet());
+
+        if (args.length == 3 || args.length == 4)
+            result.add("delete");
+
+        if (args.length == 2)
         {
-            result.add("search");
-            if (sender.hasPermission("twinkies.playerDataMod"))
-                result.add("delete");
+            for (UUID playerUUID : playerUUIDs)
+            {
+                if (Bukkit.getOfflinePlayer(playerUUID).getName() == null)
+                    continue;
+
+                if (args[1].isBlank())
+                    result.add(Bukkit.getOfflinePlayer(playerUUID).getName());
+                else
+                {
+                    if (Bukkit.getOfflinePlayer(playerUUID).getName().toLowerCase().startsWith(args[1].toLowerCase()))
+                        result.add(Bukkit.getOfflinePlayer(playerUUID).getName());
+                }
+            }
+        }
+
+        if (args.length == 3)
+        {
+            for (UUID playerUUID : playerUUIDs)
+            {
+                result.addAll(getCollection(playerNicknames, playerUUID));
+                result.addAll(getCollection(playerIps, playerUUID));
+            }
         }
 
         return result;

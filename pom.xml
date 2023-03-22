@@ -50,7 +50,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>com.google.gson</pattern>
-                                    <shadedPattern>me.wyne.shaded.gson</shadedPattern>
+                                    <shadedPattern>me.wyne.relocations.gson</shadedPattern>
                                 </relocation>
                             </relocations>
                             <createDependencyReducedPom>false</createDependencyReducedPom>

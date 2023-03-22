@@ -100,11 +100,8 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args)
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args)
     {
-        if (!(sender instanceof Player))
-            return null;
-
         List<String> result = new ArrayList<>();
 
         if (sender.isOp() && args.length == 1)
