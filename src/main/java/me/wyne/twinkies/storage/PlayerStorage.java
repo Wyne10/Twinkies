@@ -341,7 +341,6 @@ public class PlayerStorage extends JsonStorage {
 
     /**
      * /twinkies data search - Поиск твинков всех игроков
-     * /twinkies data [playerName] search - Найти твинки игрока [playerName] по всем сохранённым никам и ip
      */
     public void allSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
@@ -349,9 +348,9 @@ public class PlayerStorage extends JsonStorage {
     }
 
     /**
-     * /twinkies data [name] search - Найти игроков использовавших указанный [name]
+     * /twinkies data [nick] search - Найти игроков использовавших указанный [nick]
      */
-    public void nameSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
+    public void nickSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
         if (!sender.hasPermission("twinkies.playerData"))
             return;
@@ -393,16 +392,16 @@ public class PlayerStorage extends JsonStorage {
         {
             Log.warn("Игроки использовавшие никнейм '" + searchNick + "' не найдены");
             if (sender instanceof Player)
-                Log.error("Исполнитель запроса: '" + sender.getName() + "'");
+                Log.warn("Исполнитель запроса: '" + sender.getName() + "'");
             else
-                Log.error("Запрос был выполнен из консоли");
+                Log.warn("Запрос был выполнен из консоли");
         }
         else
         {
             if (sender instanceof Player)
-                Log.error("Игрок '" + sender.getName() + "' запросил поиск игроков использовавших никнейм '" + searchNick + "'");
+                Log.info("Игрок '" + sender.getName() + "' запросил поиск игроков использовавших никнейм '" + searchNick + "'");
             else
-                Log.error("Консоль запросила поиск игроков использовавших никнейм '" + searchNick + "'");
+                Log.info("Консоль запросила поиск игроков использовавших никнейм '" + searchNick + "'");
         }
     }
 
@@ -451,35 +450,212 @@ public class PlayerStorage extends JsonStorage {
         {
             Log.warn("Игроки использовавшие никнейм '" + searchIp + "' не найдены");
             if (sender instanceof Player)
-                Log.error("Исполнитель запроса: '" + sender.getName() + "'");
+                Log.warn("Исполнитель запроса: '" + sender.getName() + "'");
             else
-                Log.error("Запрос был выполнен из консоли");
+                Log.warn("Запрос был выполнен из консоли");
         }
         else
         {
             if (sender instanceof Player)
-                Log.error("Игрок '" + sender.getName() + "' запросил поиск игроков использовавших IP адрес '" + searchIp + "'");
+                Log.info("Игрок '" + sender.getName() + "' запросил поиск игроков использовавших IP адрес '" + searchIp + "'");
             else
-                Log.error("Консоль запросила поиск игроков использовавших IP адрес '" + searchIp + "'");
+                Log.info("Консоль запросила поиск игроков использовавших IP адрес '" + searchIp + "'");
         }
     }
 
     /**
-     * /twinkies data [playerName] [name/ip] search - Найти твинки игрока [playerName] по указанному [name/ip]
+     * /twinkies data [playerNick] [nick] search - Найти твинки игрока [playerNick] по указанному [nick]
      */
-    public void playerNameSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
+    public void playerNickSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return;
+        if (args.length != 4)
+            return;
+        if (!args[0].equalsIgnoreCase("data") || !args[3].equalsIgnoreCase("search"))
+            return;
+        if (!getCollection(playerNicknames, getOfflinePlayerCase(args[1]).getUniqueId()).contains(args[2]))
+            return;
+        if (getCollection(playerNicknames, getOfflinePlayerCase(args[1]).getUniqueId()).isEmpty())
+        {
+            sender.sendMessage(Component.text("Информация о игроке '").append(Component.text(args[1]).append(Component.text("' не найдена!"))).color(NamedTextColor.RED));
+            Log.warn("Произошла ошибка при попытке поиска твинков игрока '" + args[1] + "'");
+            Log.warn("Информация о игроке '" + args[1] + "' не найдена");
+            if (sender instanceof Player)
+                Log.warn("Исполнитель запроса: '" + sender.getName() + "'");
+            else
+                Log.warn("Запрос был выполнен из консоли");
+            return;
+        }
 
+        UUID playerUUID = getOfflinePlayerCase(args[1]).getUniqueId();
+        String searchNick = args[2];
+
+        Component searchResult = Component.text("Результаты поиска твинков по нику '")
+                .append(Component.text(searchNick))
+                .append(Component.text("'"))
+                .color(NamedTextColor.BLUE);
+
+        Set<Component> foundTwinks = searchTwinksByNick(playerUUID, searchNick);
+        Set<Component> predictedTwinks = predictTwinksByNick(playerUUID, searchNick);
+
+        if (!foundTwinks.isEmpty())
+        {
+            searchResult = searchResult.appendNewline()
+                    .append(Component.text("Найденные твинки:"))
+                    .color(NamedTextColor.BLUE)
+                    .appendNewline();
+            searchResult = appendComponentCollection(searchResult, foundTwinks);
+        }
+
+        if (!predictedTwinks.isEmpty())
+        {
+            searchResult = searchResult.appendNewline()
+                    .append(Component.text("Игроки с похожими никнеймами:"))
+                    .color(NamedTextColor.BLUE)
+                    .appendNewline();
+            searchResult = appendComponentCollection(searchResult, predictedTwinks);
+        }
+
+        if (foundTwinks.isEmpty() && predictedTwinks.isEmpty())
+            searchResult = Component.text("Твинки не найдены.").color(NamedTextColor.RED);
+
+        sender.sendMessage(searchResult);
+
+        if (sender instanceof Player)
+            Log.info("Игрок '" + sender.getName() + "' запросил поиск твинков игрока '" + args[1] + "' по нику '" + args[2] + "'");
+        else
+            Log.info("Консоль запросила поиск твинков игрока '" + args[1] + "' по нику '" + args[2] + "'");
     }
 
+    /**
+     * /twinkies data [playerNick] [ip] search - Найти твинки игрока [playerNick] по указанному [ip]
+     */
     public void playerIpSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return;
+        if (args.length != 4)
+            return;
+        if (!args[0].equalsIgnoreCase("data") || !args[3].equalsIgnoreCase("search"))
+            return;
+        if (!getCollection(playerIps, getOfflinePlayerCase(args[1]).getUniqueId()).contains(args[2]))
+            return;
+        if (getCollection(playerIps, getOfflinePlayerCase(args[1]).getUniqueId()).isEmpty())
+        {
+            sender.sendMessage(Component.text("Информация о игроке '").append(Component.text(args[1]).append(Component.text("' не найдена!"))).color(NamedTextColor.RED));
+            Log.warn("Произошла ошибка при попытке поиска твинков игрока '" + args[1] + "'");
+            Log.warn("Информация о игроке '" + args[1] + "' не найдена");
+            if (sender instanceof Player)
+                Log.warn("Исполнитель запроса: '" + sender.getName() + "'");
+            else
+                Log.warn("Запрос был выполнен из консоли");
+            return;
+        }
 
+        UUID playerUUID = getOfflinePlayerCase(args[1]).getUniqueId();
+        String searchIp = args[2];
+
+        Component searchResult = Component.text("Результаты поиска твинков по IP адресу '")
+                .append(Component.text(searchIp))
+                .append(Component.text("'"))
+                .color(NamedTextColor.BLUE);
+
+
+        Set<Component> foundTwinks = searchTwinksByIp(playerUUID, searchIp);
+
+        if (!foundTwinks.isEmpty())
+        {
+            searchResult = searchResult.appendNewline()
+                    .append(Component.text("Найденные твинки:"))
+                    .color(NamedTextColor.BLUE)
+                    .appendNewline();
+            searchResult = appendComponentCollection(searchResult, foundTwinks);
+        }
+
+        if (foundTwinks.isEmpty())
+            searchResult = Component.text("Твинки не найдены.").color(NamedTextColor.RED);
+
+        sender.sendMessage(searchResult);
+
+        if (sender instanceof Player)
+            Log.info("Игрок '" + sender.getName() + "' запросил поиск твинков игрока '" + args[1] + "' по IP адресу '" + searchIp + "'");
+        else
+            Log.info("Консоль запросила поиск твинков игрока '" + args[1] + "' по IP адресу '" + searchIp + "'");
     }
 
+    /**
+     * /twinkies data [playerName] search - Найти твинки игрока [playerName] по всем сохранённым никнеймам и ip
+     */
     public void playerSearch(@NotNull final CommandSender sender, @NotNull final String[] args)
     {
+        if (!sender.hasPermission("twinkies.playerData"))
+            return;
+        if (args.length != 3)
+            return;
+        if (!args[0].equalsIgnoreCase("data") || !args[2].equalsIgnoreCase("search"))
+            return;
+        if (!getOfflinePlayerCase(args[1]).hasPlayedBefore())
+        {
+            sender.sendMessage(Component.text("Игрок '").append(Component.text(args[1]).append(Component.text("' не найден!"))).color(NamedTextColor.RED));
+            Log.warn("Произошла ошибка при попытке поиска твинков игрока '" + args[1] + "'");
+            Log.warn("Игрок '" + args[1] + "' не найден");
+            if (sender instanceof Player)
+                Log.warn("Исполнитель запроса: '" + sender.getName() + "'");
+            else
+                Log.warn("Запрос был выполнен из консоли");
+            return;
+        }
 
+        String playerNick = args[1];
+        UUID playerUUID = getOfflinePlayerCase(args[1]).getUniqueId();
+
+        Component searchResult = Component.text("Результаты поиска твинков игрока '")
+                .append(Component.text())
+                .append(Component.text("'"))
+                .color(NamedTextColor.BLUE);
+
+        Set<Component> foundTwinks = new HashSet<>();
+        Set<Component> predictedTwinks = new HashSet<>();
+
+        for (String nick : getCollection(playerNicknames, playerUUID))
+        {
+            foundTwinks.addAll(searchTwinksByNick(playerUUID, nick));
+            predictedTwinks.addAll(predictTwinksByNick(playerUUID, nick));
+        }
+
+        for (String ip : getCollection(playerIps, playerUUID))
+        {
+            foundTwinks.addAll(searchTwinksByIp(playerUUID, ip));
+        }
+
+        if (!foundTwinks.isEmpty())
+        {
+            searchResult = searchResult.appendNewline()
+                    .append(Component.text("Найденные твинки:"))
+                    .color(NamedTextColor.BLUE)
+                    .appendNewline();
+            searchResult = appendComponentCollection(searchResult, foundTwinks);
+        }
+
+        if (!predictedTwinks.isEmpty())
+        {
+            searchResult = searchResult.appendNewline()
+                    .append(Component.text("Игроки с похожими никнеймами:"))
+                    .color(NamedTextColor.BLUE)
+                    .appendNewline();
+            searchResult = appendComponentCollection(searchResult, predictedTwinks);
+        }
+
+        if (foundTwinks.isEmpty() && predictedTwinks.isEmpty())
+            searchResult = Component.text("Твинки не найдены.").color(NamedTextColor.RED);
+
+        sender.sendMessage(searchResult);
+
+        if (sender instanceof Player)
+            Log.info("Игрок '" + sender.getName() + "' запросил поиск твинков игрока '" + args[1] + "'");
+        else
+            Log.info("Консоль запросила поиск твинков игрока '" + args[1] + "'");
     }
 
     public void searchTwinks(@NotNull final CommandSender sender, @NotNull final String[] args)
@@ -771,7 +947,7 @@ public class PlayerStorage extends JsonStorage {
             if (getCollection(playerNicknames, compareUUID).contains(searchNick))
             {
                 foundTwinks.add(Component.empty()
-                        .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))))
+                        .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, null, null))))
                         .append(Component.text(" ("))
                         .append(Component.text(searchNick))
                         .append(Component.text(")")));
@@ -807,7 +983,7 @@ public class PlayerStorage extends JsonStorage {
                     {
                         if (compareNick.toLowerCase().contains(nickPart.toLowerCase()) && !compareNick.equals(nickPart))
                             predictedTwinks.add(Component.empty()
-                                    .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty()))))
+                                    .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, null, null))))
                                     .append(Component.text(" ("))
                                     .append(Component.text(compareNick))
                                     .append(Component.text(")")));
