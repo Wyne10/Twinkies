@@ -107,7 +107,10 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
             result.add("reload");
         result.addAll(loggingConfig.loggingTabComplete(sender, args));
         result.addAll(notificationsSettingsStorage.tabComplete(sender, args));
-        result.addAll(playerStorage.tabComplete(sender, args));
+        result.addAll(playerStorage.dataTabComplete(sender, args));
+        result.addAll(playerStorage.playerTabComplete(sender, args));
+        result.addAll(playerStorage.nickTabComplete(sender, args));
+        result.addAll(playerStorage.ipTabComplete(sender, args));
 
         return result;
     }
@@ -117,9 +120,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     {
         if (sender.isOp() && args.length == 1 && args[0].equalsIgnoreCase("reload"))
             Config.reloadConfigObjects(getConfig());
-        playerStorage.showData(sender, args);
-        playerStorage.searchTwinks(sender, args);
-        playerStorage.deleteData(sender, args);
+        playerStorage.onCommand(sender, args);
         loggingConfig.setLoggingSetting(sender, args);
 
         if (!(sender instanceof Player))
