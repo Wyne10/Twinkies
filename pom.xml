@@ -122,7 +122,7 @@
         <dependency>
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-storage</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
     </dependencies>
 </project>

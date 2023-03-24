@@ -73,7 +73,7 @@ public class JoinListener implements Listener {
         else
         {
             // Handle nick change of player
-            if (!storage.get(storage.playerLastNickname(), uuid).equals(p.getName()))
+            if (storage.get(storage.playerLastNickname(), uuid) != null && !storage.get(storage.playerLastNickname(), uuid).equals(p.getName()))
             {
                 Log.log(LogMessage.builder(notifConfig.getChangeNick()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logChangeNick());
                 Notifications.sendNotification(p, notifConfig.getChangeNick(), NotificationType.CHANGE_NICK);
@@ -92,7 +92,7 @@ public class JoinListener implements Listener {
         else
         {
             // Handle IP change of player
-            if (!storage.get(storage.playerLastIp(), uuid).equals(ip))
+            if (storage.get(storage.playerLastIp(), uuid) != null && !storage.get(storage.playerLastIp(), uuid).equals(ip))
             {
                 Log.log(LogMessage.builder(notifConfig.getChangeIp()).replaceAll("(<br>|<newline>)+", "<nl>").stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logChangeIp());
                 Notifications.sendNotification(p, notifConfig.getChangeIp(), NotificationType.CHANGE_IP);

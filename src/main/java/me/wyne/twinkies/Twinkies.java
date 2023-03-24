@@ -9,6 +9,8 @@ import me.wyne.twinkies.notifications.NotificationsConfig;
 import me.wyne.twinkies.storage.PlayerStorage;
 import me.wyne.wutils.config.Config;
 import me.wyne.wutils.log.Log;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -119,7 +121,10 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args)
     {
         if (sender.isOp() && args.length == 1 && args[0].equalsIgnoreCase("reload"))
+        {
             Config.reloadConfigObjects(getConfig());
+            sender.sendMessage(Component.text("Конфиг успешно перезагружен!").color(NamedTextColor.GREEN));
+        }
         playerStorage.onCommand(sender, args);
         loggingConfig.setLoggingSetting(sender, args);
 

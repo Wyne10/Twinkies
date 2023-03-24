@@ -4,6 +4,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.wyne.twinkies.Twinkies;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -41,7 +42,7 @@ public class Notifications {
                         TextReplacementConfig.builder()
                                 .matchLiteral(player.getName())
                                 .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(player, (nickname) -> Component.empty(), (ip) -> Component.empty())))).build());
+                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(player, null, null))).clickEvent(ClickEvent.suggestCommand("/twinkies data player " + player.getName()))).build());
         sendNotification(message, notificationType);
     }
 
@@ -55,12 +56,12 @@ public class Notifications {
                         TextReplacementConfig.builder()
                                 .matchLiteral(player.getName())
                                 .replacement(Component.text(player.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(player, (nickname) -> Component.empty(), (ip) -> Component.empty())))).build())
+                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(player, null, null))).clickEvent(ClickEvent.suggestCommand("/twinkies data player " + player.getName()))).build())
                 .replaceText(
                         TextReplacementConfig.builder()
                                 .matchLiteral("%player_dupe%")
                                 .replacement(Component.text(dupePlayer.getName()).decorate(TextDecoration.UNDERLINED)
-                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(dupePlayer, (nickname) -> Component.empty(), (ip) -> Component.empty())))).build());
+                                        .hoverEvent(HoverEvent.showText(plugin.getPlayerStorage().getPlayerInfo(dupePlayer, null, null))).clickEvent(ClickEvent.suggestCommand("/twinkies data player " + dupePlayer.getName()))).build());
         sendNotification(message, notificationType);
     }
 
