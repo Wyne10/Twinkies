@@ -246,7 +246,8 @@ public class PlayerStorage extends JsonStorage {
             result.add("nick");
             result.add("ip");
             result.add("search");
-            result.add("delete");
+            if (sender.hasPermission("twinkies.playerDataMod"))
+                result.add("delete");
         }
 
         if (args.length == 5 && args[3].equalsIgnoreCase("nick"))
@@ -260,7 +261,8 @@ public class PlayerStorage extends JsonStorage {
 
         if (args.length == 6 && (args[3].equalsIgnoreCase("nick") | args[3].equalsIgnoreCase("ip")))
         {
-            result.add("delete");
+            if (sender.hasPermission("twinkies.playerDataMod"))
+                result.add("delete");
         }
 
         return result;
