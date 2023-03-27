@@ -5,6 +5,8 @@
 
 Twinkies is a small plugin for Paper 1.19.2+ that will help you to keep track of player's twinks.
 
+## Twnkies is not translated to English right now. Translation will be available later but you can still use Russian version or translate it yourself.
+
 ## Requirements
  - Paper 1.19.2+
  - PlaceholderAPI
