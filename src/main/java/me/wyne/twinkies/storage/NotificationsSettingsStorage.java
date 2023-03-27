@@ -40,7 +40,7 @@ public class NotificationsSettingsStorage extends JsonStorage {
                     playerSettings.put(UUID.fromString(playerObject.getKey()), gson.fromJson(playerObject.getValue(), NotificationsSettings.class));
                 }
                 Log.info("Данные из файла '" + storageFile.getName() + "' загружены");
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 Log.error("Произошла ошибка при загрузке данных из файла '" + storageFile.getName() + "'");
                 Log.error(e.getMessage());
             }

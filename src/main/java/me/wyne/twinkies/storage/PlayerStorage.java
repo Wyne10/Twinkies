@@ -93,7 +93,7 @@ public class PlayerStorage extends JsonStorage {
                     playerIps.put(UUID.fromString(playerObject.getKey()), newPlayerIps);
                 }
                 Log.info("Данные из файла '" + storageFile.getName() + "' загружены");
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 Log.error("Произошла ошибка при загрузке данных из файла '" + storageFile.getName() + "'");
                 Log.error(e.getMessage());
             }
