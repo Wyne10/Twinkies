@@ -105,9 +105,7 @@ public class LoggingConfig extends Config implements LogConfig {
         List<String> result = new ArrayList<>();
 
         if (args.length == 1)
-        {
             result.add("logging");
-        }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("logging"))
         {

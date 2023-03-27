@@ -118,7 +118,8 @@ public class JoinListener implements Listener {
             if (compareUUID.equals(uuid))
                 continue;
 
-            if (storage.getCollection(storage.playerIps(), compareUUID).contains(ip)) {
+            if (storage.getCollection(storage.playerIps(), compareUUID).contains(ip))
+            {
                 Log.log(LogMessage.builder(notifConfig.getDupeIp()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", Bukkit.getOfflinePlayer(compareUUID).getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeIp());
                 Notifications.sendNotification(p, Bukkit.getOfflinePlayer(compareUUID), notifConfig.getDupeIp(), NotificationType.DUPE_IP);
             }
