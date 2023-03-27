@@ -6,7 +6,7 @@
 
     <groupId>me.wyne</groupId>
     <artifactId>Twinkies</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
 
     <name>Twinkies</name>
@@ -51,6 +51,10 @@
                                 <relocation>
                                     <pattern>com.google.gson</pattern>
                                     <shadedPattern>me.wyne.relocations.gson</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>me.wyne.wutils</pattern>
+                                    <shadedPattern>me.wyne.relocations.wutils</shadedPattern>
                                 </relocation>
                             </relocations>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
@@ -107,12 +111,12 @@
         <dependency>
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-config</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-log</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>me.wyne</groupId>
@@ -122,7 +126,7 @@
         <dependency>
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-storage</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
     </dependencies>
 </project>

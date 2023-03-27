@@ -122,8 +122,8 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     {
         if (sender.isOp() && args.length == 1 && args[0].equalsIgnoreCase("reload"))
         {
-            Config.reloadConfigObjects(getConfig());
-            sender.sendMessage(Component.text("Конфиг успешно перезагружен!").color(NamedTextColor.GREEN));
+            if (Config.reloadConfigObjects(getConfig()))
+                sender.sendMessage(Component.text("Конфиг успешно перезагружен!").color(NamedTextColor.GREEN));
         }
         playerStorage.onCommand(sender, args);
         loggingConfig.setLoggingSetting(sender, args);

@@ -46,7 +46,7 @@ public class PlayerStorage extends JsonStorage {
 
     public PlayerStorage(@NotNull final Twinkies plugin)
     {
-        super(plugin, "playerData.json");
+        super(plugin, new File(plugin.getDataFolder(), "playerData.json"));
         predictSplitRegex.add("(?=\\p{Upper})");
         predictSplitRegex.add("_+");
         predictSplitRegex.add("\\.+");
@@ -68,7 +68,7 @@ public class PlayerStorage extends JsonStorage {
 
     public void loadData()
     {
-        executorService.execute(() -> {
+        jsonExecutorService.execute(() -> {
             try {
                 Log.info("Загрузка данных из файла '" + storageFile.getName() + "'...");
                 JsonObject playerObjects = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));

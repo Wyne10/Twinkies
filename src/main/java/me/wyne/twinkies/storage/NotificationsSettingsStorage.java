@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
@@ -26,11 +27,11 @@ public class NotificationsSettingsStorage extends JsonStorage {
     }
 
     public NotificationsSettingsStorage(@NotNull final Twinkies plugin) {
-        super(plugin, "notifSettings.json");
+        super(plugin, new File(plugin.getDataFolder(), "notifSettings.json"));
     }
 
     public void loadData() {
-        executorService.execute(() -> {
+        jsonExecutorService.execute(() -> {
             try {
                 Log.info("Загрузка данных из файла '" + storageFile.getName() + "'...");
                 JsonObject playerObjects = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
@@ -50,7 +51,6 @@ public class NotificationsSettingsStorage extends JsonStorage {
     {
         if (!playerSettings.containsKey(player.getUniqueId()) && player.hasPermission("twinkies.notifications"))
         {
-            playerSettings.put(player.getUniqueId(), new NotificationsSettings());
             save(playerSettings, player.getUniqueId(), new NotificationsSettings(), null);
         }
     }
