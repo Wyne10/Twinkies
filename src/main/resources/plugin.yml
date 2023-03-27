@@ -20,3 +20,5 @@ permissions:
       twinkies.playerData: true
   twinkies.logging:
     description: Allows player to set logging settings
+  twinkies.bypass:
+    description: Makes twinks checker ignore player

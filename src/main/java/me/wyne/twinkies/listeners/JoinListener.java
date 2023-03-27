@@ -61,6 +61,9 @@ public class JoinListener implements Listener {
             Notifications.sendNotification(p, notifConfig.getJoin(), NotificationType.JOIN);
         }
 
+        if (p.hasPermission("twinkies.bypass"))
+            return;
+
         // Handle new nick of player
         if (!storage.getCollection(storage.playerNicknames(), uuid).contains(p.getName()))
         {
