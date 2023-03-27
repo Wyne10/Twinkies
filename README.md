@@ -18,7 +18,7 @@ Twinkies is a small plugin for Paper 1.19.2+ that will help you to keep track of
  - Full logging of notifications and plugin messages and writing to log file
  - Detection of nick and IP change, as well as determination of duplicate nicknames and IPs
  - Ability to manipulate saved player data via commands
- - Logging, saving data, executing commands are processed in different threads
+ - Logging, saving data, executing commands, sending notifications are processed in different threads
  - Ability to predict similar player nicknames
 
 
