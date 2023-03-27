@@ -100,23 +100,28 @@ public class JoinListener implements Listener {
             }
         }
 
-        for (OfflinePlayer player : Bukkit.getOfflinePlayers())
+        // Handle dupe nick of player
+        for (UUID compareUUID : storage.playerNicknames().keySet())
         {
-            if (player == p)
+            if (compareUUID.equals(uuid))
                 continue;
 
-            // Handle dupe nick of player
-            if (storage.getCollection(storage.playerNicknames(), player.getUniqueId()).contains(p.getName()))
+            if (storage.getCollection(storage.playerNicknames(), compareUUID).contains(p.getName()))
             {
-                Log.log(LogMessage.builder(notifConfig.getDupeNick()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", player.getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeNick());
-                Notifications.sendNotification(p, player, notifConfig.getDupeNick(), NotificationType.DUPE_NICK);
+                Log.log(LogMessage.builder(notifConfig.getDupeNick()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", Bukkit.getOfflinePlayer(compareUUID).getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeNick());
+                Notifications.sendNotification(p, Bukkit.getOfflinePlayer(compareUUID), notifConfig.getDupeNick(), NotificationType.DUPE_NICK);
             }
+        }
 
-            // Handle dupe IP of player
-            if (storage.getCollection(storage.playerIps(), player.getUniqueId()).contains(ip))
-            {
-                Log.log(LogMessage.builder(notifConfig.getDupeIp()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", player.getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeIp());
-                Notifications.sendNotification(p, player, notifConfig.getDupeIp(), NotificationType.DUPE_IP);
+        // Handle dupe IP of player
+        for (UUID compareUUID : storage.playerIps().keySet())
+        {
+            if (compareUUID.equals(uuid))
+                continue;
+
+            if (storage.getCollection(storage.playerIps(), compareUUID).contains(ip)) {
+                Log.log(LogMessage.builder(notifConfig.getDupeIp()).replaceAll("(<br>|<newline>)+", "<nl>").replaceAll("%player_dupe%+", Bukkit.getOfflinePlayer(compareUUID).getName()).stripTags().setPlaceholders(p).build(), "<nl>+", logConfig.logDupeIp());
+                Notifications.sendNotification(p, Bukkit.getOfflinePlayer(compareUUID), notifConfig.getDupeIp(), NotificationType.DUPE_IP);
             }
         }
     }

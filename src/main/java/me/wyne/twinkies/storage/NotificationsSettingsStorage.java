@@ -64,9 +64,7 @@ public class NotificationsSettingsStorage extends JsonStorage {
         List<String> result = new ArrayList<>();
 
         if (args.length == 1)
-        {
             result.add("notif");
-        }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("notif"))
         {

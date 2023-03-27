@@ -18,8 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.function.Function;
 
 public class PlayerStorage extends JsonStorage {
@@ -41,11 +40,16 @@ public class PlayerStorage extends JsonStorage {
         return playerIps;
     }
 
+    private final Set<String> predictSplitRegex = new HashSet<>();
+
     private final ExecutorService commandExecutorService;
 
     public PlayerStorage(@NotNull final Twinkies plugin)
     {
         super(plugin, "playerData.json");
+        predictSplitRegex.add("(?=\\p{Upper})");
+        predictSplitRegex.add("_+");
+        predictSplitRegex.add("\\.+");
         commandExecutorService = Executors.newSingleThreadExecutor();
     }
 
@@ -354,13 +358,7 @@ public class PlayerStorage extends JsonStorage {
         Component searchResult = Component.text("Результаты поиска твинков всех игроков")
                 .color(NamedTextColor.BLUE);
 
-        Set<String> predictSplitRegex = new HashSet<>();
-        predictSplitRegex.add("(?=\\p{Upper})");
-        predictSplitRegex.add("_+");
-        predictSplitRegex.add("\\.+");
-
         Set<Component> foundTwinks = new HashSet<>();
-        Set<Component> predictedTwinks = new HashSet<>();
 
         for (UUID playerUUID : playerNicknames.keySet())
         {
@@ -382,25 +380,6 @@ public class PlayerStorage extends JsonStorage {
                                 .append(Component.text(nick))
                                 .append(Component.text(")")));
                     }
-
-                    for (String splitRegex : predictSplitRegex)
-                    {
-                        for (String nickPart : nick.split(splitRegex))
-                        {
-                            for (String compareNick : getCollection(playerNicknames, compareUUID))
-                            {
-                                if ((compareNick.toLowerCase().contains(nick.toLowerCase()) || compareNick.toLowerCase().contains(nickPart.toLowerCase())) && !compareNick.equals(nickPart))
-                                    predictedTwinks.add(Component.empty()
-                                            .append(Component.text(Bukkit.getOfflinePlayer(playerUUID).getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(Bukkit.getOfflinePlayer(playerUUID), null, null))).clickEvent(ClickEvent.suggestCommand("/twinkies data player " + Bukkit.getOfflinePlayer(playerUUID).getName())))
-                                            .append(Component.text(" ("))
-                                            .append(Component.text(Bukkit.getOfflinePlayer(compareUUID).getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(Bukkit.getOfflinePlayer(compareUUID), null, null))).clickEvent(ClickEvent.suggestCommand("/twinkies data player " + Bukkit.getOfflinePlayer(compareUUID).getName())))
-                                            .append(Component.text(")"))
-                                            .append(Component.text(" ("))
-                                            .append(Component.text(compareNick))
-                                            .append(Component.text(")")));
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -412,10 +391,6 @@ public class PlayerStorage extends JsonStorage {
                 for (UUID compareUUID : playerIps.keySet())
                 {
                     if (playerUUID.equals(compareUUID))
-                        continue;
-                    if (Bukkit.getOfflinePlayer(playerUUID).getName() == null)
-                        continue;
-                    if (Bukkit.getOfflinePlayer(compareUUID).getName() == null)
                         continue;
 
                     if (getCollection(playerIps, compareUUID).contains(ip))
@@ -442,16 +417,7 @@ public class PlayerStorage extends JsonStorage {
             searchResult = appendComponentCollection(searchResult, foundTwinks);
         }
 
-        if (!predictedTwinks.isEmpty())
-        {
-            searchResult = searchResult.append(Component.newline())
-                    .append(Component.text("Игроки с похожими никнеймами:"))
-                    .color(NamedTextColor.BLUE)
-                    .append(Component.newline());
-            searchResult = appendComponentCollection(searchResult, predictedTwinks);
-        }
-
-        if (foundTwinks.isEmpty() && predictedTwinks.isEmpty())
+        if (foundTwinks.isEmpty())
             searchResult = Component.text("Твинки не найдены.").color(NamedTextColor.RED);
 
         sender.sendMessage(searchResult);
@@ -483,6 +449,8 @@ public class PlayerStorage extends JsonStorage {
 
         boolean found = false;
 
+        Set<Component> predictedNicks = new HashSet<>();
+
         for (UUID compareUUID : playerNicknames.keySet())
         {
             if (getCollection(playerNicknames, compareUUID).contains(searchNick))
@@ -494,6 +462,18 @@ public class PlayerStorage extends JsonStorage {
                                 .clickEvent(ClickEvent.suggestCommand("/twinkies data player " + Bukkit.getOfflinePlayer(compareUUID).getName()))
                                 .color(NamedTextColor.WHITE));
             }
+
+            predictedNicks.addAll(predictTwinksByNick(compareUUID, searchNick));
+        }
+
+        if (!predictedNicks.isEmpty())
+        {
+            found = true;
+            searchResult = searchResult.append(Component.newline())
+                    .append(Component.text("Игроки с похожими никнеймами:"))
+                    .color(NamedTextColor.BLUE)
+                    .append(Component.newline());
+            searchResult = appendComponentCollection(searchResult, predictedNicks);
         }
 
         if (found)
@@ -596,7 +576,7 @@ public class PlayerStorage extends JsonStorage {
 
         sender.sendMessage(getPlayerInfo(player, (nick) ->
                         Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
-                                .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому никнейму").color(NamedTextColor.GREEN)))
+                                .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти твинки по этому никнейму").color(NamedTextColor.GREEN)))
                                 .clickEvent(ClickEvent.suggestCommand("/twinkies data player " + args[2] + " nick " + nick))
                                 .append(Component.space())
                                 .append(Component.text("[✖]").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
@@ -604,7 +584,7 @@ public class PlayerStorage extends JsonStorage {
                                         .clickEvent(ClickEvent.suggestCommand("/twinkies data player " + args[2] + " nick " + nick + " delete"))),
                 (ip) ->
                         Component.text(" [✔]").decorate(TextDecoration.BOLD).color(NamedTextColor.GREEN)
-                                .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти возможные твинки по этому IP адресу").color(NamedTextColor.GREEN)))
+                                .hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы найти твинки по этому IP адресу").color(NamedTextColor.GREEN)))
                                 .clickEvent(ClickEvent.suggestCommand("/twinkies data player " + args[2] + " ip " + ip))
                                 .append(Component.space())
                                 .append(Component.text("[✖]").decorate(TextDecoration.BOLD).color(NamedTextColor.RED)
@@ -964,11 +944,6 @@ public class PlayerStorage extends JsonStorage {
     {
         Set<Component> predictedTwinks = new HashSet<>();
 
-        Set<String> predictSplitRegex = new HashSet<>();
-        predictSplitRegex.add("(?=\\p{Upper})");
-        predictSplitRegex.add("_+");
-        predictSplitRegex.add("\\.+");
-
         for (UUID compareUUID : playerNicknames.keySet())
         {
             if (playerUUID.equals(compareUUID))
@@ -982,7 +957,10 @@ public class PlayerStorage extends JsonStorage {
                 {
                     for (String compareNick : getCollection(playerNicknames, compareUUID))
                     {
-                        if ((compareNick.toLowerCase().contains(predictNick.toLowerCase()) || compareNick.toLowerCase().contains(nickPart.toLowerCase())) && !compareNick.equals(nickPart))
+                        if (compareNick.equals(predictNick))
+                            continue;
+
+                        if (compareNick.toLowerCase().contains(predictNick.toLowerCase()) || compareNick.toLowerCase().contains(nickPart.toLowerCase()))
                             predictedTwinks.add(Component.empty()
                                     .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(getPlayerInfo(comparePlayer, null, null))).clickEvent(ClickEvent.suggestCommand("/twinkies data player " + comparePlayer.getName())))
                                     .append(Component.text(" ("))

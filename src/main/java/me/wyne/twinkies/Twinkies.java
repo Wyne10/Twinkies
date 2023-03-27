@@ -53,7 +53,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
         Log.registerLogger(getLogger());
         Log.registerConfig(loggingConfig);
         Log.registerLogDirectory(new File(getDataFolder(), "logs"));
-        Log.registerWriteThread(Executors.newSingleThreadExecutor());
+        Log.registerExecutor(Executors.newSingleThreadExecutor());
 
         // Initialize notifications
         Notifications.registerPlugin(this);
