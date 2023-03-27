@@ -3,19 +3,19 @@
 ![GitHub](https://img.shields.io/badge/Paper-1.19.2%2B-lightgrey)
 ![GitHub](https://img.shields.io/github/license/Wyne10/Twinkies)
 
-Twinkies - это маленький плагин для Paper 1.19.2+ позволяющий отслеживать твинки игроков.
+Twinkies is a small plugin for Paper 1.19.2+ that will help you to keep track of player's twinks.
 
-## Требования
+## Requirements
  - Paper 1.19.2+
  - PlaceholderAPI
 
-## Возможности
- - Сохранение истории никнеймов и IP адресов игроков
- - Отправка уведомлений для администрации сервера
- - Индивидуальная настройка уведомлений для каждого администратора
- - Полное логирование уведомлений и сообщений плагина и запись в файл с логами
- - Определение смены ника и IP игрока, а также определение дублирующихся ников и IP
- - Возможность манипулирования сохранёнными данными о игроках через команды
- - Логирование, сохранение данных, выполнение команд происходят в разных потоках
- - Возможность предугадывать похожие никнеймы игроков
+## Features
+ - Saving nicknames and IP history
+ - Sending notifications to admins
+ - Individual notification settings for each administrator
+ - Full logging of notifications and plugin messages and writing to log file
+ - Detection of nick and IP change, as well as determination of duplicate nicknames and IPs
+ - Ability to manipulate saved player data via commands
+ - Logging, saving data, executing commands are processed in different threads
+ - Ability to predict similar player nicknames
 
