@@ -29,6 +29,7 @@ Twinkies - это маленький плагин для Paper 1.19.2+ позв�
 
 ## Команды
 - twinkies
+- - twinkies reload - Перезагрузить конфиг (Доступен только для ОП)
 - - twinkies logging [logName] - Настройка логирования (twinkies.logging)
 - - twinkies notif [notifName] - Настройка уведомлений (twinkies.notifications)
 - - twinkies data
