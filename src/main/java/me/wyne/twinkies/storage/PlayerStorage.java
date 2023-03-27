@@ -217,6 +217,8 @@ public class PlayerStorage extends JsonStorage {
 
         if (!getCollection(playerNicknames, player.getUniqueId()).isEmpty() && getCollection(playerNicknames, player.getUniqueId()).size() > 1)
         {
+            if (!foundTwinks.isEmpty())
+                playerInfo = playerInfo.append(Component.newline());
             playerInfo = playerInfo.append(Component.newline())
                     .append(Component.text("Никнеймы:"))
                     .color(NamedTextColor.BLUE)
@@ -226,7 +228,9 @@ public class PlayerStorage extends JsonStorage {
 
         if (!getCollection(playerIps, player.getUniqueId()).isEmpty())
         {
-            playerInfo = playerInfo.append(Component.newline()).append(Component.newline())
+            if (!foundTwinks.isEmpty() || (!getCollection(playerNicknames, player.getUniqueId()).isEmpty() && getCollection(playerNicknames, player.getUniqueId()).size() > 1))
+                playerInfo = playerInfo.append(Component.newline());
+            playerInfo = playerInfo.append(Component.newline())
                     .append(Component.text("IP адреса:"))
                     .color(NamedTextColor.BLUE)
                     .append(Component.newline());
