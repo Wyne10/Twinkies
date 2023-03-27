@@ -164,7 +164,58 @@ public class PlayerStorage extends JsonStorage {
                 .append(Component.text("'"))
                 .color(NamedTextColor.BLUE);
 
-        if (!getCollection(playerNicknames, player.getUniqueId()).isEmpty())
+        Set<Component> foundTwinks = new HashSet<>();
+
+        for (String nick : getCollection(playerNicknames, player.getUniqueId()))
+        {
+            for (UUID compareUUID : playerNicknames.keySet())
+            {
+                if (player.getUniqueId().equals(compareUUID))
+                    continue;
+
+                OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
+
+                if (getCollection(playerNicknames, compareUUID).contains(nick))
+                {
+                    foundTwinks.add(Component.empty()
+                            .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы показать информацию о игроке").color(NamedTextColor.GREEN))).clickEvent(ClickEvent.suggestCommand("/twinkies data player " + comparePlayer.getName())))
+                            .append(Component.text(" ("))
+                            .append(Component.text(nick))
+                            .append(Component.text(")")));
+                }
+            }
+        }
+
+        for (String ip : getCollection(playerIps, player.getUniqueId()))
+        {
+            for (UUID compareUUID : playerIps.keySet())
+            {
+                if (player.getUniqueId().equals(compareUUID))
+                    continue;
+
+                OfflinePlayer comparePlayer = Bukkit.getOfflinePlayer(compareUUID);
+
+                if (getCollection(playerIps, compareUUID).contains(ip))
+                {
+                    foundTwinks.add(Component.empty()
+                            .append(Component.text(comparePlayer.getName()).hoverEvent(HoverEvent.showText(Component.text("Нажмите чтобы показать информацию о игроке").color(NamedTextColor.GREEN))).clickEvent(ClickEvent.suggestCommand("/twinkies data player " + comparePlayer.getName())))
+                            .append(Component.text(" ("))
+                            .append(Component.text(ip))
+                            .append(Component.text(")")));
+                }
+            }
+        }
+
+        if (!foundTwinks.isEmpty())
+        {
+            playerInfo = playerInfo.append(Component.newline())
+                    .append(Component.text("Твинки:"))
+                    .color(NamedTextColor.BLUE)
+                    .append(Component.newline());
+            playerInfo = appendComponentCollection(playerInfo, foundTwinks);
+        }
+
+        if (!getCollection(playerNicknames, player.getUniqueId()).isEmpty() && getCollection(playerNicknames, player.getUniqueId()).size() > 1)
         {
             playerInfo = playerInfo.append(Component.newline())
                     .append(Component.text("Никнеймы:"))

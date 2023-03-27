@@ -9,7 +9,6 @@ import me.wyne.twinkies.notifications.Notifications;
 import me.wyne.wutils.log.LogMessage;
 import me.wyne.wutils.log.Log;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
