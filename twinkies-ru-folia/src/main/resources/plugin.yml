@@ -1,0 +1,25 @@
+name: Twinkies
+version: '${project.version}'
+main: me.wyne.twinkies.Twinkies
+api-version: 1.19
+softdepend: [ PlaceholderAPI ]
+author: Wyne
+folia-supported: true
+website: https://github.com/Wyne10
+commands:
+  twinkies:
+    aliases:
+      - tw
+permissions:
+  twinkies.*:
+    default: op
+  twinkies.notifications:
+    description: Allows player to receive notifications and change notifications settings
+  twinkies.playerDataMod:
+    description: Allows player to access saved player data
+    children:
+      twinkies.playerData: true
+  twinkies.logging:
+    description: Allows player to change logging settings
+  twinkies.bypass:
+    description: Will not send notifications about twinks of this player
