@@ -12,8 +12,8 @@
     <name>Twinkies-ru</name>
 
     <modules>
-        <module>twinkies-ru-paper</module>
-        <module>twinkies-ru-folia</module>
+        <module>paper</module>
+        <module>folia</module>
     </modules>
 
     <properties>
