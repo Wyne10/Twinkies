@@ -7,9 +7,13 @@
     <groupId>me.wyne</groupId>
     <artifactId>Twinkies-ru</artifactId>
     <version>1.2</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>Twinkies</name>
+    <name>Twinkies-ru</name>
+
+    <modules>
+        <module>twinkies-ru-paper</module>
+    </modules>
 
     <properties>
         <java.version>17</java.version>
@@ -28,47 +32,7 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <relocations>
-                                <relocation>
-                                    <pattern>com.google.gson</pattern>
-                                    <shadedPattern>me.wyne.relocations.gson</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>me.wyne.wutils</pattern>
-                                    <shadedPattern>me.wyne.relocations.wutils</shadedPattern>
-                                </relocation>
-                            </relocations>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
 
     <repositories>
@@ -91,12 +55,6 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.19.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
