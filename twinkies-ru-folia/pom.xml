@@ -10,7 +10,7 @@
     </parent>
 
     <version>1.0.0</version>
-    <artifactId>twinkies-ru-folia</artifactId>
+    <artifactId>Twinkies-ru-folia</artifactId>
     <packaging>jar</packaging>
 
     <build>

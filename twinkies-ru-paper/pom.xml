@@ -10,7 +10,7 @@
     </parent>
 
     <version>1.0.0</version>
-    <artifactId>twinkies-ru-paper</artifactId>
+    <artifactId>Twinkies-ru-paper</artifactId>
     <packaging>jar</packaging>
 
     <build>
