@@ -85,7 +85,7 @@
         <dependency>
             <groupId>me.wyne</groupId>
             <artifactId>WUtils-storage</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.9</version>
         </dependency>
     </dependencies>
 </project>

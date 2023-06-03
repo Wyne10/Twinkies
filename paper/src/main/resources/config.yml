@@ -40,6 +40,8 @@ log-err: true
 log-warn: true
 # Логирование информации
 log-info: true
+# Логирование запросов json
+log-jsonQuery: false
 # Логирование входа нового игрока
 log-register: true
 # Логирование входа игрока

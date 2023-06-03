@@ -32,8 +32,8 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     // Storage
-    private final PlayerStorage playerStorage = new PlayerStorage(this);
-    private final NotificationsSettingsStorage notificationsSettingsStorage = new NotificationsSettingsStorage(this);
+    private PlayerStorage playerStorage;
+    private NotificationsSettingsStorage notificationsSettingsStorage;
 
     // Configs
     private final NotificationsConfig notificationsConfig = new NotificationsConfig();
@@ -43,7 +43,7 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
     private final PlayerPlaceholders playerPlaceholders = new PlayerPlaceholders(this);
 
     // Listeners
-    private final JoinListener joinListener = new JoinListener(this);
+    private JoinListener joinListener;
 
     @Override
     public void onEnable() {
@@ -61,20 +61,27 @@ public final class Twinkies extends JavaPlugin implements CommandExecutor, TabCo
         // Initialize configs
         Config.reloadConfigObjects(getConfig());
 
-        Bukkit.getPluginManager().registerEvents(joinListener, this);
-
+        // Initialize commands
         this.getCommand("twinkies").setTabCompleter(this);
         this.getCommand("twinkies").setExecutor(this);
 
+        // Initialize placeholders
         playerPlaceholders.register();
 
         // Initialize storages
-        playerStorage.createStorageFolder();
-        notificationsSettingsStorage.createStorageFolder();
+        playerStorage = new PlayerStorage(this);
+        notificationsSettingsStorage = new NotificationsSettingsStorage(this);
+
+        playerStorage.createStorageFolder(getDataFolder());
+        notificationsSettingsStorage.createStorageFolder(getDataFolder());
         playerStorage.createStorageFile();
         notificationsSettingsStorage.createStorageFile();
         playerStorage.loadData();
         notificationsSettingsStorage.loadData();
+
+        // Initialize listeners
+        joinListener = new JoinListener(this);
+        Bukkit.getPluginManager().registerEvents(joinListener, this);
     }
 
     @NotNull

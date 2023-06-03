@@ -8,8 +8,8 @@
         <artifactId>Twinkies</artifactId>
         <version>1.2</version>
     </parent>
-
-    <version>1.0.0</version>
+    
+    <version>1.0.1</version>
     <artifactId>Twinkies-folia</artifactId>
     <packaging>jar</packaging>
 
