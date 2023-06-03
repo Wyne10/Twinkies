@@ -46,7 +46,7 @@ public class PlayerStorage extends JsonStorage {
 
     public PlayerStorage(@NotNull final Twinkies plugin)
     {
-        super(plugin, new File(plugin.getDataFolder(), "playerData.json"));
+        super(new File(plugin.getDataFolder(), "playerData.json"), Executors.newSingleThreadExecutor(), plugin.getLogConfig().logJsonQuery());
         predictSplitRegex.add("(?=\\p{Upper})");
         predictSplitRegex.add("_+");
         predictSplitRegex.add("\\.+");
@@ -66,38 +66,36 @@ public class PlayerStorage extends JsonStorage {
         return true;
     }
 
-    public void loadData()
+    @Override
+    @Nullable
+    public Throwable loadDataImpl()
     {
-        jsonExecutorService.execute(() -> {
-            try {
-                Log.info("Загрузка данных из файла '" + storageFile.getName() + "'...");
-                JsonObject playerObjects = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
-                for (Map.Entry<String, JsonElement> playerObject : playerObjects.entrySet())
+        try {
+            JsonObject playerObjects = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
+            for (Map.Entry<String, JsonElement> playerObject : playerObjects.entrySet())
+            {
+                Set<String> newPlayerNicknames = new HashSet<>();
+                Set<String> newPlayerIps = new HashSet<>();
+                for (JsonElement playerNicknameJson : playerObject.getValue().getAsJsonObject().getAsJsonArray("nicknames"))
                 {
-                    Set<String> newPlayerNicknames = new HashSet<>();
-                    Set<String> newPlayerIps = new HashSet<>();
-                    for (JsonElement playerNicknameJson : playerObject.getValue().getAsJsonObject().getAsJsonArray("nicknames"))
-                    {
-                        newPlayerNicknames.add(playerNicknameJson.getAsString());
-                    }
-                    for (JsonElement playerIpJson : playerObject.getValue().getAsJsonObject().getAsJsonArray("ips"))
-                    {
-                        newPlayerIps.add(playerIpJson.getAsString());
-                    }
-
-                    if (playerObject.getValue().getAsJsonObject().has("last-nickname"))
-                        playerLastNickname.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-nickname").getAsString());
-                    playerNicknames.put(UUID.fromString(playerObject.getKey()), newPlayerNicknames);
-                    if (playerObject.getValue().getAsJsonObject().has("last-ip"))
-                        playerLastIp.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-ip").getAsString());
-                    playerIps.put(UUID.fromString(playerObject.getKey()), newPlayerIps);
+                    newPlayerNicknames.add(playerNicknameJson.getAsString());
                 }
-                Log.info("Данные из файла '" + storageFile.getName() + "' загружены");
-            } catch (Exception e) {
-                Log.error("Произошла ошибка при загрузке данных из файла '" + storageFile.getName() + "'");
-                Log.error(e.getMessage());
+                for (JsonElement playerIpJson : playerObject.getValue().getAsJsonObject().getAsJsonArray("ips"))
+                {
+                    newPlayerIps.add(playerIpJson.getAsString());
+                }
+
+                if (playerObject.getValue().getAsJsonObject().has("last-nickname"))
+                    playerLastNickname.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-nickname").getAsString());
+                playerNicknames.put(UUID.fromString(playerObject.getKey()), newPlayerNicknames);
+                if (playerObject.getValue().getAsJsonObject().has("last-ip"))
+                    playerLastIp.put(UUID.fromString(playerObject.getKey()), playerObject.getValue().getAsJsonObject().get("last-ip").getAsString());
+                playerIps.put(UUID.fromString(playerObject.getKey()), newPlayerIps);
             }
-        });
+        } catch (Exception e) {
+            return e;
+        }
+        return null;
     }
 
     @NotNull

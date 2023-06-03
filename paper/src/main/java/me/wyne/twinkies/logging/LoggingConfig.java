@@ -27,6 +27,9 @@ public class LoggingConfig extends Config implements LogConfig {
     @Setting(setMessage = "Логирование информации")
     @ConfigField(path = "log-info")
     private boolean logInfo = true;
+    @Setting(setMessage = "Логирование запросов json")
+    @ConfigField(path = "log-jsonQuery")
+    private boolean logJsonQuery = false;
     @Setting(setMessage = "Логирование уведомлений о регистрации")
     @ConfigField(path = "log-register")
     private boolean logRegister = true;
@@ -63,6 +66,8 @@ public class LoggingConfig extends Config implements LogConfig {
     public boolean logInfo() {
         return logInfo;
     }
+
+    public boolean logJsonQuery() { return logJsonQuery; }
 
     public boolean logRegister() {
         return logRegister;

@@ -13,11 +13,13 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
+import java.util.concurrent.Executors;
 
 public class NotificationsSettingsStorage extends JsonStorage {
 
@@ -27,24 +29,22 @@ public class NotificationsSettingsStorage extends JsonStorage {
     }
 
     public NotificationsSettingsStorage(@NotNull final Twinkies plugin) {
-        super(plugin, new File(plugin.getDataFolder(), "notifSettings.json"));
+        super(new File(plugin.getDataFolder(), "notifSettings.json"), Executors.newSingleThreadExecutor(), plugin.getLogConfig().logJsonQuery());
     }
 
-    public void loadData() {
-        jsonExecutorService.execute(() -> {
-            try {
-                Log.info("Загрузка данных из файла '" + storageFile.getName() + "'...");
-                JsonObject playerObjects = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
-                for (Map.Entry<String, JsonElement> playerObject : playerObjects.entrySet())
-                {
-                    playerSettings.put(UUID.fromString(playerObject.getKey()), gson.fromJson(playerObject.getValue(), NotificationsSettings.class));
-                }
-                Log.info("Данные из файла '" + storageFile.getName() + "' загружены");
-            } catch (Exception e) {
-                Log.error("Произошла ошибка при загрузке данных из файла '" + storageFile.getName() + "'");
-                Log.error(e.getMessage());
+    @Override
+    @Nullable
+    public Throwable loadDataImpl() {
+        try {
+            JsonObject playerObjects = (JsonObject) JsonParser.parseReader(new FileReader(storageFile));
+            for (Map.Entry<String, JsonElement> playerObject : playerObjects.entrySet())
+            {
+                playerSettings.put(UUID.fromString(playerObject.getKey()), gson.fromJson(playerObject.getValue(), NotificationsSettings.class));
             }
-        });
+        } catch (Exception e) {
+            return e;
+        }
+        return null;
     }
 
     public void initializePlayer(@NotNull final Player player)
